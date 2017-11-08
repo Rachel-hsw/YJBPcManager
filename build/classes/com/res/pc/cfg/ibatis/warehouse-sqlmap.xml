@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/ibatis-2-config.dtd">
+<sqlMap namespace="warehouse">
+
+
+    <typeAlias alias="WarehouseEntity" type="com.res.pc.code.manager.bean.WarehouseEntity"/>
+    <typeAlias alias="WarehouseVo" type="com.res.pc.code.manager.bean.WarehouseVo"/>
+    <!-- 查看仓库列表信息 -->
+    <select id="queryAllWarehouse" parameterClass="WarehouseEntity" resultClass="WarehouseEntity">
+        <!--select * from T_Qk_Company_Warehouse-->
+        select FId,FName,FTel,FAddress,FRemark,FStatus from T_Qk_Company_Warehouse where 1=1
+        <isNotEmpty property="FName"  prepend="AND">
+            FName like '%$FName$%'
+        </isNotEmpty>
+        and FStatus = 0
+    </select>
+
+    <!--分页 -->
+    <select id="queryWarehouse" parameterClass="WarehouseVo" resultClass="WarehouseEntity">
+        <!--select * from T_Qk_Company_Warehouse-->
+        select * from
+            (select *, ROW_NUMBER() OVER (ORDER BY FId) AS RowNumber
+              from T_Qk_Company_Warehouse
+                where 1=1
+                <isNotEmpty property="FName"  prepend="AND">
+                    FName like '%$FName$%'
+                </isNotEmpty>
+                and FStatus = 0
+        )Warehouse
+         where RowNumber  between $begin$ AND  $end$
+    </select>
+
+    <!-- 查询仓库个数 -->
+    <select id="queryWarehouseCount" parameterClass="WarehouseVo" resultClass="java.lang.Integer">
+        select COUNT(1) from T_Qk_Company_Warehouse where 1=1
+        <isNotEmpty property="FName"  prepend="AND">
+            FName like '%$FName$%'
+        </isNotEmpty>
+
+    </select>
+
+    <!-- 根据id查询单个仓库-->
+    <select id="queryWarehouseById" parameterClass="WarehouseEntity" resultClass="WarehouseEntity">
+        <!--FName,FTel,FAddress,FRemark,FStatus-->
+        select FId,FName,FTel,FAddress,FRemark,FStatus from T_Qk_Company_Warehouse where FId = #FId# and FStatus = 0
+    </select>
+
+    <!-- 删除-->
+    <update id="deleteWarehouse" parameterClass="WarehouseEntity">
+        update T_Qk_Company_Warehouse set FStatus = 1 where FId = #FId#
+    </update>
+
+    <!-- 更新 -->
+    <update id="updateWarehouse" parameterClass="WarehouseEntity">
+        update T_Qk_Company_Warehouse
+                set FName = #FName#,
+                    FTel = #FTel#,
+                    FAddress = #FAddress#,
+                    FRemark = #FRemark#
+             where
+                    FId = #FId#
+    </update>
+    <!-- 新增 -->
+    <insert id="addWarehouse" parameterClass="WarehouseEntity" >
+        insert into T_Qk_Company_Warehouse (FName,FTel,FAddress,FRemark)
+            values
+                (#FName#,
+                 #FTel#,
+                 #FAddress#,
+                 #FRemark#)
+    </insert>
+
+
+</sqlMap>

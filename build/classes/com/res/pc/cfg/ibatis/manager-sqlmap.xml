@@ -1,0 +1,927 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+		"http://www.ibatis.com/dtd/ibatis-2-config.dtd">
+
+<sqlMap namespace="manager">
+	<!-- 用户 -->
+	<typeAlias alias="userInfo" type="com.res.pc.code.manager.bean.UserInfo" />
+	<!-- 分页 -->
+	<typeAlias alias="pageInfo" type="com.res.pc.util.PageInfo" />
+	<!-- 角色 -->
+	<typeAlias alias="roleInfo" type="com.res.pc.code.manager.bean.RoleInfo" />
+	<!-- 角色 -->
+	<typeAlias alias="initialNavigationsInfo"
+		type="com.res.pc.code.manager.bean.InitialNavigationsInfo" />
+	<typeAlias alias="configInfo" type="com.res.pc.code.manager.bean.configInfo" />
+	<typeAlias alias="OperationLog" type="com.res.pc.code.manager.bean.OperationLog" />
+	<typeAlias alias="PriceBean" type="com.res.pc.code.manager.bean.PriceBean" />
+	<typeAlias alias="RewardBean" type="com.res.pc.code.manager.bean.RewardBean" />
+	<typeAlias alias="PurchaseBean" type="com.res.pc.code.manager.bean.PurchaseBean" />
+	<typeAlias alias="WarehouseBean" type="com.res.pc.code.manager.bean.WarehouseBean" />
+	
+	<typeAlias alias="DriverBean" type="com.res.pc.code.manager.bean.DriverBean" />
+	<typeAlias alias="SupplierBean" type="com.res.pc.code.manager.bean.SupplierBean" />
+	<typeAlias alias="Product" type="com.res.pc.code.manager.bean.Product" />
+	<typeAlias alias="purItemBean" type="com.res.pc.code.manager.bean.PurItemBean" />
+	<typeAlias alias="condition" type="com.res.pc.code.manager.bean.MyCondition" />
+	<typeAlias alias="Orders" type="com.res.pc.code.manager.bean.Orders" />
+	<typeAlias alias="view_orderdetail" type="com.res.pc.code.manager.bean.view_orderdetail" />
+	<typeAlias alias="DeliveryBean" type="com.res.pc.code.manager.bean.DeliveryBean" />
+	<typeAlias alias="PurchasingBean" type="com.res.pc.code.manager.bean.PurchasingBean" />
+         <typeAlias alias="QuerySupplierVo" type="com.res.pc.code.manager.bean.QuerySupplierVo" />
+        <typeAlias alias="QueryProdVo" type="com.res.pc.code.manager.bean.QueryProdVo" />
+         <typeAlias alias="Message" type="com.res.pc.code.manager.bean.Message" />
+         <typeAlias alias="PayMainBean" type="com.res.pc.code.manager.bean.PayMainBean" />
+	<!-- 登录 -->
+	<select id="login" parameterClass="userInfo" resultClass="userInfo">
+		SELECT
+		*
+		from
+		qk_user
+		where
+		username = #username#
+		and
+		password = #password#
+	</select>
+
+
+	<!-- 查询菜单列表总条数 -->
+	<select id="queryINCount" resultClass="java.lang.Integer">
+		select COUNT(1) from
+		qk_InitialNavigations where IsEnabled = 0
+	</select>
+
+	<!-- 查询系统参数列表 -->
+	<select id="queryconfigList" parameterClass="pageInfo"
+		resultClass="configInfo">
+		<![CDATA[	
+		SELECT *
+		FROM (SELECT *,ROW_NUMBER() OVER (ORDER BY $order$) AS RowNumber
+		FROM TE_IdConfig
+		where 1=1 
+		]]>
+		<isNotEmpty prepend="AND" property="query">
+			$query$
+		</isNotEmpty>
+		)t
+		<![CDATA[	
+		WHERE RowNumber > $start$ AND RowNumber <= $end$	
+		]]>
+		ORDER BY $order$
+	</select>
+
+	<!--查询系统参数列表总条数 -->
+	<select id="queryconfigListCount" resultClass="java.lang.Integer">
+		select COUNT(1)
+		from
+		TE_IdConfig
+	</select>
+
+	<update id="updateconfig" parameterClass="configInfo">
+		update TE_IdConfig
+		set
+		name= #name#,
+		state= #state#
+		where
+		id = #id#
+	</update>
+
+	<!-- 菜单列表 -->
+	<select id="queryINList" parameterClass="pageInfo" resultClass="initialNavigationsInfo">
+		<![CDATA[	
+		SELECT 
+		NavigationId,ParentNavigationId,NavigationText,ImageUrl,NavigationUrl,IsMoveby
+		FROM (SELECT NavigationId,ParentNavigationId,NavigationText,ImageUrl,NavigationUrl,IsMoveby,IsEnabled,
+		ROW_NUMBER() OVER (ORDER BY $order$) AS RowNumber
+		FROM qk_InitialNavigations where IsEnabled = 0)t
+		WHERE RowNumber > $start$ AND RowNumber <= $end$ AND t.IsEnabled = 0 
+		ORDER BY $order$
+		]]>
+	</select>
+
+
+	<!-- 单条菜单 -->
+	<select id="queryINinfo" parameterClass="initialNavigationsInfo"
+		resultClass="initialNavigationsInfo">
+		<![CDATA[	
+		SELECT 
+		NavigationId,ParentNavigationId,NavigationText,ImageUrl,NavigationUrl,IsMoveby,IsEnabled
+		FROM  qk_InitialNavigations 
+		WHERE IsEnabled = 0 AND NavigationId = #NavigationId#
+		]]>
+	</select>
+
+
+	<!-- 添加菜单信息 -->
+	<insert id="addINInfo" parameterClass="initialNavigationsInfo">
+		INSERT INTO
+		qk_InitialNavigations
+		(
+		ParentNavigationId,
+		NavigationText,
+		ImageUrl,
+		NavigationUrl,
+		IsMoveby,
+		IsEnabled
+		)
+		VALUES
+		(
+		#ParentNavigationId#,
+		#NavigationText#,
+		#ImageUrl#,
+		#NavigationUrl#,
+		#IsMoveby#,
+		0
+		)
+	</insert>
+
+	<!-- 修改菜单信息 -->
+	<update id="updateINInfo" parameterClass="initialNavigationsInfo">
+		update
+		qk_InitialNavigations
+		set
+		ParentNavigationId = #ParentNavigationId#,
+		NavigationText = #NavigationText#,
+		ImageUrl = #ImageUrl#,
+		NavigationUrl
+		= #NavigationUrl#,
+		IsMoveby = #IsMoveby#
+		where
+		NavigationId =
+		#NavigationId#
+	</update>
+
+	<!-- 删除菜单信息 -->
+	<update id="delINInfo" parameterClass="initialNavigationsInfo">
+		update
+		qk_InitialNavigations
+		set
+		IsEnabled = 1
+		where
+		NavigationId =
+		#NavigationId#
+	</update>
+
+	<!-- 查询菜单是否存在 -->
+	<select id="queryINAccount" parameterClass="initialNavigationsInfo"
+		resultClass="java.lang.Integer">
+		select COUNT(1) from qk_InitialNavigations t where
+		t.NavigationText = #NavigationText#
+	</select>
+
+
+	<!-- 查询用户列表总条数 -->
+	<select id="queryUserListCount" resultClass="java.lang.Integer"
+		parameterClass="pageInfo">
+	<![CDATA[
+		select COUNT(1) from qk_user where IsDel = '0' and UserName <> 'admin'
+		
+		
+	]]>
+		<isNotEmpty prepend="AND" property="query">
+			$query$
+		</isNotEmpty>
+	</select>
+
+
+
+
+
+
+
+
+
+	<!-- 查询账号是否被注册 -->
+	<select id="queryUserAccount" parameterClass="userInfo"
+		resultClass="java.lang.Integer">
+		select userid from qk_user q where q.username =
+		#username#
+	</select>
+
+	<!-- 修改秘密 -->
+	<update id="updatePW" parameterClass="userInfo">
+		update qk_user
+		set
+		password
+		=
+		#password#
+		where
+		userid = #userid#
+	</update>
+
+
+
+
+
+
+	<!-- 查询用户详情 -->
+	<select id="queryUserInfo" parameterClass="userInfo"
+		resultClass="userInfo">
+		select * from qk_user q where q.userid = #userid#
+	</select>
+
+
+
+
+
+
+
+	<!-- 查询角色列表总条数 -->
+	<select id="queryRoleCount" resultClass="java.lang.Integer">
+		select COUNT(1) from
+		qk_Role
+	</select>
+
+
+	<!-- 角色列表 -->
+	<select id="queryRoleList" parameterClass="pageInfo"
+		resultClass="roleInfo">
+		<![CDATA[	
+		SELECT 
+		ID,Power,RoleName,Remark,users,CreateTime,IsMoveby 
+		FROM (SELECT ID,Power,RoleName,Remark,users,CreateTime,IsMoveby,
+		ROW_NUMBER() OVER (ORDER BY $order$) AS RowNumber
+		FROM qk_Role)t
+		WHERE RowNumber > $start$ AND RowNumber <= $end$ 
+		ORDER BY $order$
+		]]>
+	</select>
+
+
+	<!-- 单条角色 -->
+	<select id="queryRoleinfo" parameterClass="roleInfo"
+		resultClass="roleInfo">
+		<![CDATA[	
+		SELECT 
+		ID,Power,RoleName,Remark,users,CreateTime,IsMoveby
+		FROM  qk_Role 
+		WHERE ID = $ID$
+		]]>
+	</select>
+
+
+	<!-- 添加角色信息 -->
+	<insert id="addRoleInfo" parameterClass="roleInfo">
+		INSERT INTO qk_Role
+		(
+		Power,
+		RoleName,
+		Remark,
+		users,
+		IsMoveby
+		)
+		VALUES
+		(
+		#Power#,
+		#RoleName#,
+		#Remark#,
+		#users#,
+		#IsMoveby#
+		)
+	</insert>
+
+	<!-- 修改角色信息 -->
+	<update id="updateRoleInfo" parameterClass="roleInfo">
+		update qk_Role
+		set
+		Power = #Power#,
+		RoleName = #RoleName#,
+		Remark = #Remark#,
+		users =
+		#users#,
+		IsMoveby = #IsMoveby#
+		where
+		ID = $ID$
+	</update>
+
+	<!-- 删除角色信息 -->
+	<delete id="delRoleInfo" parameterClass="roleInfo">
+		delete from qk_Role
+		where
+		ID = $ID$
+	</delete>
+
+	<!-- 查询角色是否存在 -->
+	<select id="queryRoleAccount" parameterClass="roleInfo"
+		resultClass="java.lang.Integer">
+		select COUNT(1) from qk_Role t where t.RoleName =
+		#RoleName#
+	</select>
+
+
+
+	<!-- 根据ids查询菜单 -->
+	<select id="queryINByIds" parameterClass="java.lang.String"
+		resultClass="initialNavigationsInfo">
+		select * from qk_InitialNavigations where NavigationId in
+		($ids$) order by px asc
+	</select>
+
+
+	<!-- 根据ids查询用户 -->
+	<select id="queryUsersByIds" parameterClass="java.lang.String"
+		resultClass="userInfo">
+		select * from qk_user where userid in ($ids$)
+	</select>
+
+
+
+	<!-- 根据用户查角色 -->
+	<select id="queryRolesByUserId" parameterClass="java.lang.String"
+		resultClass="roleInfo">
+		select * from qk_Role where users like '%$userId$%'
+	</select>
+
+	<!-- 根据用户查角色 -->
+	<select id="queryAllIN" resultClass="initialNavigationsInfo">
+		select * from
+		qk_InitialNavigations
+	</select>
+
+
+
+
+	<!-- 添加日志 -->
+	<insert id="addlog" parameterClass="OperationLog">
+		INSERT INTO
+		Operation_log
+		(
+		user_id,
+		log,
+		time
+		)
+		VALUES
+		(
+		#user_id#,
+		#log#,
+		#time#
+		)
+	</insert>
+
+
+
+	<!-- 根据用户查角色 -->
+	<select id="queryAllUser" resultClass="userInfo">
+	<![CDATA[	
+		select * from qk_user where username <> 'admin' 
+	]]>
+	</select>
+
+
+	<!-- 修改折扣信息 -->
+	<update id="updateZk" parameterClass="PriceBean">
+		update T_Qk_Price
+		set
+		P_Price = #P_Price#,
+		P_Num = #P_Num#,
+		P_Money = #P_Money#
+		where
+		P_Price_id =#P_Price_id#
+	</update>
+
+
+
+	<!-- 查看折扣信息 -->
+	<select id="queryAllZk" resultClass="PriceBean">
+	<![CDATA[	
+		select * from T_Qk_Price 
+	]]>
+	</select>
+
+	<!-- 修改返利信息 -->
+	<update id="updateReward" parameterClass="RewardBean">
+		update T_Qk_Spd
+		set
+		Rate
+		= #Rate#
+		where
+		id =#id#
+	</update>
+
+
+
+
+	<!-- 查看返利信息 -->
+	<select id="queryAllReward" resultClass="RewardBean">
+	<![CDATA[	
+		select * from T_Qk_Spd 
+	]]>
+	</select>
+
+
+	<!-- 查看返利信息 -->
+	<select id="queryPurchase" resultClass="PurchaseBean">
+	<![CDATA[	
+		select * from qk_Order_Purchase 
+	]]>
+	</select>
+	<!-- 添加菜单信息 -->
+	<insert id="addPurchase" parameterClass="PurchaseBean">
+		INSERT INTO
+		qk_Order_Purchase
+		(
+		User_id,
+		W_ID,
+		Order_id,
+		ZDY,
+		JSR,
+		S_J_ID,
+		ZL,
+		JE,
+		SL
+		)
+		VALUES
+		(
+		#User_id#,
+		#W_ID#,
+		#Order_id#,
+		#ZDY#,
+		#JSR#,
+		#S_J_ID#,
+		#ZL#,
+		#JE#,
+		#SL#
+		)
+	</insert>
+
+
+	<!-- 查看仓库列表信息 -->
+	<select id="queryAllWarehouse" resultClass="WarehouseBean">
+	<![CDATA[	
+		select * from T_Qk_Company_Warehouse 
+	]]>
+	</select>
+	<!-- 查看用户列表信息 -->
+	<select id="queryAllUserB" resultClass="userInfo">
+	<![CDATA[	
+		select * from qk_user where userlb='2'
+	]]>
+	</select>
+	<!-- 查看用户列表信息 -->
+	<select id="queryAllOrders" resultClass="userInfo">
+	<![CDATA[	
+		select * from qk_user 
+	]]>
+
+	</select>
+	<!-- 查看驾驶员列表信息 -->
+	<select id="queryAllDriver" resultClass="DriverBean">
+	<![CDATA[	
+		select * from T_Qk_Driver 
+	]]>
+	</select>
+	<!-- 查看进货单位列表信息 -->
+	<select id="queryAllSupplier" resultClass="SupplierBean">
+	<![CDATA[	
+		select * from T_Qk_Supplier  where FStatus <>1
+	]]>
+	</select>
+	<!-- 查看商品列表信息 -->
+	<select id="queryAllProduct" resultClass="Product">
+	<![CDATA[	
+		select * from qk_products 
+	]]>
+	</select>
+	<!-- 提交采货单，明细表 -->
+	<insert id="updatepurchasing" parameterClass="purItemBean">
+		INSERT INTO
+		T_Qk_Purchasing_Item
+		(
+		FBillID,FP_Id,FP_Price,FP_Num,FP_Zl,FP_Money,FRemark,FEntryID
+		)
+		VALUES
+		(
+		((select FMax from T_QK_Billnumber where FClass=1001 ) +1),
+		#FP_Id#,
+		#FP_Price#,
+		#FP_Num#,
+		#FP_Zl#,
+		#FP_Money#,
+		#FRemark#,
+		(ISNULL( ((select MAX(FEntryID) from T_Qk_Purchasing_Item) +1) ,1))
+		)
+	</insert>
+
+	<!-- 提交采货单，主表 -->
+	<insert id="updatepurchasingM" parameterClass="condition">
+		INSERT INTO
+		T_Qk_Purchasing
+		(
+		FBillID,FS_Date,FOrder_Id,FSupplier_Id,FW_Id,FZdy,FSource_Id,FJsr,FS_J_Id,FSl,FZl,FJe,Fstatus
+		)
+		VALUES
+		(
+		((select FMax from T_QK_Billnumber where FClass=1001 ) +1),
+		#FS_Date#,
+		#FOrder_Id#,
+		#FSupplier_Id#,
+		#FW_Id#,
+		#FZdy#,
+		#FSource_Id#,
+		#FJsr#,
+		#FS_J_Id#,
+		#FSl#,
+		#FZl#,
+		#FJe#,
+		1
+
+		)
+	</insert>
+
+	<!-- 提交采货单，明细表 -->
+	<insert id="updatereturn" parameterClass="purItemBean">
+		INSERT INTO
+		T_Qk_Purchasing_Item
+		(
+		FBillID,FP_Id,FP_Price,FP_Num,FP_Zl,FP_Money,FRemark,FEntryID
+		)
+		VALUES
+		(
+		((select FMax from T_QK_Billnumber where FClass=1001 ) +1),
+		#FP_Id#,
+		#FP_Price#,
+		#FP_Num#,
+		#FP_Zl#,
+		#FP_Money#,
+		#FRemark#,
+		(ISNULL( ((select MAX(FEntryID) from T_Qk_Purchasing_Item) +1) ,1))
+		)
+	</insert>
+
+	<!-- 提交采货单，主表 -->
+	<insert id="updatereturnM" parameterClass="condition">
+		INSERT INTO
+		T_Qk_Purchasing
+		(
+		FBillID,FS_Date,FOrder_Id,FSupplier_Id,FW_Id,FZdy,FSource_Id,FJsr,FS_J_Id,FSl,FZl,FJe,Fstatus
+		)
+		VALUES
+		(
+		((select FMax from T_QK_Billnumber where FClass=1001 ) +1),
+		#FS_Date#,
+		#FOrder_Id#,
+		#FSupplier_Id#,
+		#FW_Id#,
+		#FZdy#,
+		#FSource_Id#,
+		#FJsr#,
+		#FS_J_Id#,
+		#FSl#,
+		#FZl#,
+		#FJe#,
+		4
+
+		)
+	</insert>
+
+	<!-- 采购金额插入数据 -->
+	<insert id="updateAmount" parameterClass="condition">
+		INSERT INTO
+		T_Qk_Purchasing_Amount
+		(
+		FBillID, Fje, FJe_Y, FJe_S, FJe_Q, FJe_H, FRemark
+		)
+		VALUES
+		(
+		((select FMax from T_QK_Billnumber where FClass=1001 ) +1),
+		#FJe#,
+		0,
+		#FJe#,
+		(select Fending_balance from T_Qk_Supplier where
+		FId=#FSupplier_Id#),
+		(#FJe#)+(select Fending_balance from T_Qk_Supplier
+		where FId=#FSupplier_Id#),
+		#FRemark#
+		)
+	</insert>
+	<!-- 修改供应商信息 -->
+	<update id="updateSupplier" parameterClass="condition">
+		update T_Qk_Supplier
+		set Fending_balance=(Fending_balance+#FJe#)
+		where
+		FId =#FSupplier_Id#
+	</update>
+	<!-- 修改供应商信息 -->
+	<update id="updateSupplier1" parameterClass="PayMainBean">
+		update T_Qk_Supplier set Fending_balance=Fending_balance-#FFk_Je# where FId=#FSupplier_Id#
+	</update>
+		<!-- 修改订单状态 -->
+	<update id="updateAmountPay" parameterClass="java.lang.Integer">
+		update T_Qk_Purchasing_Amount set FJe_Y=Fje,FJe_S=0
+	</update>
+	<!-- 修改供应商资金变动信息 -->
+	<update id="updateCfg" parameterClass="condition">
+		update T_Qk_Cfg
+		set FAmount_B=(FAmount_B+#FJe#),FAmount_E=(FAmount_E+#FJe#)
+		where
+		FID
+		=#FSupplier_Id#
+	</update>
+	<!-- 修改单号表变动信息 -->
+	<update id="updateBillnumber" parameterClass="condition">
+		update T_QK_Billnumber
+		set FMax=(FMax+1) where FClass=1001
+	</update>
+
+	<!-- 修改库存信息 -->
+	<update id="updateStock" parameterClass="purItemBean">
+		update T_Qk_Stock
+		set FNum_J=FNum_J+#FP_Num#
+		where FW_Id=#FW_Id# and FP_Id=#FP_Id#
+	</update>
+
+	<select id="queryAllOrdersList" resultClass="Orders">
+	<![CDATA[	
+		select FBillID,User_id,FOrder_Id,FS_Date,FSname,Ftel,FSl,FZl,Fje,FRemark,FAddress from T_Qk_Orders where Fstatus='2'
+	]]>
+	</select>
+	<select id="queryAllOrdersListss" resultClass="Orders"
+		parameterClass="java.lang.Integer">
+	<![CDATA[	
+		select FBillID,User_id,FOrder_Id,FS_Date,FSname,Ftel,FSl,FZl,Fje,FRemark,FAddress from T_Qk_Orders where Fstatus='2' and FBillID=#FBillID#
+	]]>
+	</select>
+	<select id="queryAllOrdersLists" resultClass="Orders"
+		parameterClass="java.lang.String">
+
+		select
+		FBillID,User_id,FOrder_Id,FS_Date,FSname,Ftel,FSl,FZl,Fje,FRemark,FAddress
+		from T_Qk_Orders where Fstatus='2' and $query$
+
+	</select>
+
+
+	<!-- 查看待发货明细列表信息 -->
+	<select id="queryAllOrderDetail" resultClass="view_orderdetail"
+		parameterClass="java.lang.Integer">
+	<![CDATA[	
+		 select * from view_orderdetail  where  FBillID=#FBillID#
+	]]>
+	</select>
+	
+	<!-- 查看待发货明细列表信息 -->
+	<select id="queryPurchaseDetail" resultClass="view_orderdetail"
+		parameterClass="java.lang.Integer">
+	<![CDATA[	
+		 select * from view_purchasedetail  where  FBillID=#FBillID#
+	]]>
+	</select>
+	
+
+	<!-- 添加发货单信息 -->
+	<insert id="updateDeliver_Goods" parameterClass="DeliveryBean">
+		INSERT INTO
+		T_Qk_Deliver_Goods
+		(
+		FBillID,FW_ID,	FExpress,FCourier_Number,FConsignor,FDelivery_Time,FId
+		)
+		VALUES
+		(
+		#FBillID#,
+		#FW_ID#,
+		#FExpress#,
+		#FCourier_Number#,
+		#FConsignor#,
+		#FDelivery_Time#,
+		#FId#
+		)
+	</insert>
+	
+		<!-- 修改订单状态 -->
+	<update id="updateOrders_Status" parameterClass="java.lang.Integer">
+		 update T_Qk_Orders set Fstatus='3' where FBillID=#FBillID#
+	</update>
+		<!-- 修改订单状态 -->
+	<update id="updatePurchase_Status" parameterClass="java.lang.Integer">
+		 update T_Qk_Purchasing set Fstatus='2' where FBillID=#FBillID#
+	</update>
+	
+		<!-- 修改库存信息 -->
+	<update id="updateStock2" parameterClass="purItemBean">
+		update T_Qk_Stock
+		set FNum_X=FNum_X+#FP_Num#
+		where FW_Id=#FW_Id# and FP_Id=#FP_Id#
+	</update>
+	<!-- 根据采购单位查询待付款采购单 -->
+	<select id="queryPurchasing" resultClass="PurchasingBean"
+		parameterClass="java.lang.String">
+	<![CDATA[	
+		select  a.FBillID,	a.GUID,	a.FOrder_Id,	a.FSource_Id,	a.FSupplier_Id,a.FW_Id,	a.FS_J_Id,a.FS_Date,	a.FYf,	a.FSl	,a.FZl,	a.FJe,	a.FZdy,	b.username,	a.Fstatus	,a.FRemark from T_Qk_Purchasing a,qk_user b where a.FJsr=b.userid and FSupplier_Id=#FId# and Fstatus in(1,4)
+	]]>
+	</select>
+						<!-- 查询进货单位列表-->
+	<select id="selectSupplierAll"  parameterClass="QuerySupplierVo"  resultClass="SupplierBean">
+		 <![CDATA[
+	    SELECT *
+		FROM (SELECT *,ROW_NUMBER() OVER (ORDER BY FId) AS RowNumber
+		FROM T_Qk_Supplier 
+		where 1=1 
+			]]>
+			 <isNotEmpty property="fname"  prepend="AND">
+                    FName like '%$fname$%' or FNick like '%$fname$%' or( FPym like '%$fname$%' collate Chinese_PRC_CI_AS)
+                </isNotEmpty>
+                <isNotEmpty property="faddress"  prepend="AND">
+                      faddress like '%$faddress$%'
+                </isNotEmpty>
+                 <isNotEmpty property="fcontacts"  prepend="AND">
+                    fcontacts =#fcontacts#
+                </isNotEmpty>
+                  <isNotEmpty property="ftel"  prepend="AND">
+                    ftel =#ftel#
+                </isNotEmpty>
+                  <isNotEmpty property="fstatus"  prepend="AND">
+                    fstatus =#fstatus#
+                </isNotEmpty>
+	 )m
+	
+		<![CDATA[	
+		WHERE RowNumber  between $begin$ AND  $end$   
+		]]>
+		</select>
+	
+		<select id="selectSupplierListCount"  parameterClass="QuerySupplierVo"  resultClass="java.lang.Integer">
+	 <![CDATA[
+		select COUNT(1) from T_Qk_Supplier where 1=1  
+		]]>
+		
+		<isNotEmpty property="fname"  prepend="AND">
+		    <![CDATA[
+                 FNick like '%$fname$%' or   FName like '%$fname$%'  or( FPym like '%$fname$%' collate Chinese_PRC_CI_AS)
+                    ]]>
+                </isNotEmpty>
+                
+		
+                <isNotEmpty property="faddress"  prepend="AND">
+                      FAddress like '%$faddress$%'
+                </isNotEmpty>
+                 <isNotEmpty property="fcontacts"  prepend="AND">
+                    FContacts =#fcontacts#
+                </isNotEmpty>
+                  <isNotEmpty property="ftel"  prepend="AND">
+                    FTel =#ftel#
+                </isNotEmpty>
+                  <isNotEmpty property="fstatus"  prepend="AND">
+                    FStatus =#fstatus#
+                </isNotEmpty>
+	</select>
+	
+			<!-- 查询进货单位详情 -->
+	<select id="querySupplierInfo" parameterClass="SupplierBean"
+		resultClass="SupplierBean">
+		select * from T_Qk_Supplier  where  FId = #FId#
+	</select>
+	<insert id="addSupplierInfo" parameterClass="SupplierBean">
+		INSERT INTO T_Qk_Supplier
+		(  FClass,
+          FCode,
+		    FName,
+			FNick,
+			FPym,
+			FAddress,
+			FContacts,
+			FTel, 
+           FRegistrars,
+			FbeginTime,
+			Fendtime,
+			Fending_balance,
+			FRemark
+		)
+		VALUES
+		('10001',
+		'10001',
+		#FName#,
+		#FNick#,
+		dbo.fn_GetPy(#FName#),
+		#FAddress#,
+		#FContacts#,
+		#FTel#,
+		#FRegistrars#,
+		#FbeginTime#,
+		#FbeginTime#,
+		 #Fending_balance#,
+		 #FRemark#
+		)
+	</insert>
+		<!-- 修改进货单位信息 -->
+	<update id="updateSupplierInfo" parameterClass="SupplierBean">
+		update T_Qk_Supplier
+		set
+		    FName= #FName#,
+			FNick= #FNick#,	
+			FPym= dbo.fn_GetPy(#FName#),
+			FAddress= #FAddress#,
+			FContacts= #FContacts#,
+			FTel= #FTel#,
+			FRemark	= #FRemark#,
+			Fendtime= #Fendtime#,
+			Fending_balance=#Fending_balance#,
+			 FRegistrars=#FRegistrars#
+			where
+		     FId = #FId#
+	</update>
+	
+		<!-- 删除进货单位 -->
+	    <update id="deleteSupplierInfo" parameterClass="SupplierBean">
+	    	update T_Qk_Supplier
+		   set
+		    FStatus= #FStatus#
+			where
+		     FId = #FId#
+	</update>
+	
+	<!-- 查询全部产品-->
+	<select id="findAllProd" parameterClass="QueryProdVo"
+		resultClass="Product">
+		select * from qk_products  where 1=1
+		  <isNotEmpty property="queryname"  prepend="AND">
+                      name like '%$queryname$%'  or( FPym like '%$queryname$%' collate Chinese_PRC_CI_AS)
+                </isNotEmpty>
+                  <isNotEmpty property="querystatus"  prepend="AND">
+                        FStatus =#querystatus#
+                </isNotEmpty>
+	</select>
+	
+		<!-- 查询进货单位详情 -->
+	<select id="queryProdInfo" parameterClass="java.lang.String"
+		resultClass="Product">
+		select * from qk_products  where id = #id#
+	</select>
+	<!-- 添加产品 -->
+	<insert id="addProdInfo" parameterClass="Product">
+		INSERT INTO qk_products
+		(  	name,
+		    FPym,
+			price,
+			category,
+			F_Zl,
+			imgurl,
+			F_Unit,
+			description
+		)
+		VALUES
+		(   #name#,
+		  dbo.fn_GetPy(#name#),
+			#price#,
+			#category#,
+			#F_Zl#,
+			#imgurl#,
+			#F_Unit#,
+			#description#
+		)
+	</insert>
+		<!-- 修改产品信息 -->
+	<update id="updateProdInfo" parameterClass="Product">
+		update qk_products
+		set
+		     name=#name#,
+		     FPym=dbo.fn_GetPy(#name#),
+			price=#price#,
+			category=#category#,
+			F_Zl=#F_Zl#,
+			imgurl=#imgurl#,
+			F_Unit=#F_Unit#,
+			description=#description#
+			where
+		     id = #id#
+	</update>
+	
+		<!-- 删除产品 -->
+	    <update id="deleteProdInfo" parameterClass="Product">
+	    	update qk_products
+		   set
+		    FStatus= #FStatus#
+			where
+		     id = #id#
+	</update>
+	   <!-- 添加发货单信息 -->
+	<insert id="updateT_Qk_FK" parameterClass="PayMainBean">
+		INSERT INTO
+		T_Qk_FK
+		(
+		FId,FSupplier_Id,FS_Date,FIsDefault,FPayment_id	,FFk_Zje,FSxf,FFk_Je,FJe_Q,	FJe_H,FRemark,FPay_Id,FPay_Name,FZdy
+		)
+		VALUES
+		(
+		(ISNULL( ((select MAX(FId) from T_Qk_FK) +1) ,1)),
+		#FSupplier_Id#,
+		#FS_Date#,
+		#FIsDefault#,
+		#FPayment_id#,
+		#FFk_Zje#,
+		#FSxf#,
+		#FFk_Je#,
+		(select Fending_balance from T_Qk_Supplier where FId=#FSupplier_Id#),
+		(select Fending_balance from T_Qk_Supplier where FId=#FSupplier_Id#)-#FFk_Je#,
+		#FRemark#,
+		#FPay_Id#,
+		#FPay_Name#,
+		#FZdy#
+		
+	
+		)
+	</insert> 
+
+ 	<procedure id="usp_qk_message" parameterClass="Message" >
+   {call  usp_Order_TB_Report_sl(#FTel#,#FDatetime#, #FMsg#, #FType#)}
+  </procedure> 
+</sqlMap>
