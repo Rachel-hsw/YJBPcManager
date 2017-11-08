@@ -699,7 +699,8 @@
 		<!-- 修改库存信息 -->
 	<update id="updateStock2" parameterClass="purItemBean">
 		update T_Qk_Stock
-		set FNum_X=FNum_X+#FP_Num#
+		set FNum_X=FNum_X+#FP_Num#,
+		FNum_E=FNum_E-#FP_Num#
 		where FW_Id=#FW_Id# and FP_Id=#FP_Id#
 	</update>
 	<!-- 根据采购单位查询待付款采购单 -->
