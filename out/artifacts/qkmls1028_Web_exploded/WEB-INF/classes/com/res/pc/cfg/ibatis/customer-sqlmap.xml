@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+"http://www.ibatis.com/dtd/ibatis-2-config.dtd">
+
+<sqlMap namespace="customer">
+
+		<typeAlias alias="userInfo" type="com.res.pc.code.manager.bean.UserInfo" />
+<typeAlias alias="QueryCustomerVo" type="com.res.pc.code.customer.bean.QueryCustomerVo" />
+
+				<!-- 查询公司期初-->
+	<select id="selectCustomerAll"  parameterClass="QueryCustomerVo"  resultClass="userInfo">
+		 <![CDATA[
+	    SELECT *
+		FROM (SELECT *,ROW_NUMBER() OVER (ORDER BY createtime) AS RowNumber
+		FROM qk_user 
+		where 1=1 
+			]]>
+			 <isNotEmpty property="username"  prepend="AND">
+                  username like '%$username$%' or name like '%$username$%'
+                </isNotEmpty>
+                <isNotEmpty property="tel"  prepend="AND">
+                    tel =#tel#
+                </isNotEmpty>
+                <isNotEmpty property="FStatus"  prepend="AND">
+                    FStatus =#FStatus#
+                </isNotEmpty>
+                 <isNotEmpty property="openid"  prepend="AND">
+                    openid =#openid#
+                </isNotEmpty>
+                  <isNotEmpty property="iccard"  prepend="AND">
+                    iccard =#iccard#
+                </isNotEmpty>
+                  <isNotEmpty property="email"  prepend="AND">
+                    email =#email#
+                </isNotEmpty>
+	 )m
+	
+	<![CDATA[	
+		WHERE RowNumber  between $begin$ AND  $end$   
+		]]>
+		</select>
+	
+		<select id="selectCustomerListCount"  parameterClass="QueryCustomerVo"  resultClass="java.lang.Integer">
+	 <![CDATA[
+		select COUNT(1) from qk_user where 1=1  
+		]]>
+		
+		<isNotEmpty property="username"  prepend="AND">
+                    username like '%$username$%' or name like '%$username$%'
+                </isNotEmpty>
+                <isNotEmpty property="tel"  prepend="AND">
+                    tel =#tel#
+                </isNotEmpty>
+                <isNotEmpty property="FStatus"  prepend="AND">
+                    FStatus =#FStatus#
+                </isNotEmpty>
+                 <isNotEmpty property="openid"  prepend="AND">
+                    openid =#openid#
+                </isNotEmpty>
+                  <isNotEmpty property="iccard"  prepend="AND">
+                    iccard =#iccard#
+                </isNotEmpty>
+                  <isNotEmpty property="email"  prepend="AND">
+                    email =#email#
+                </isNotEmpty>
+	</select>
+	
+			<!-- 查询用户详情 -->
+	<select id="queryUserInfo" parameterClass="userInfo"
+		resultClass="userInfo">
+		select * from qk_user t where t.userid = #userid#
+	</select>
+	
+		<!-- 修改用户信息 -->
+	<update id="updateUserInfo" parameterClass="userInfo">
+		update qk_user
+		set
+		name = #name#,
+		tel = #tel#,
+		iccard = #iccard#,
+		email =#email#,
+		userlb =#userlb#
+		where
+		userid = #userid#
+	</update>
+		<!-- 修改秘密 -->
+	<update id="updatePW" parameterClass="userInfo">
+		update qk_user
+		set
+		password
+		= #password#
+		where
+		userid = #userid#
+	</update>
+	
+		<!-- 删除用户 -->
+	<update id="deleteUserInfo" parameterClass="userInfo">
+	    update qk_user
+	    set FStatus= #FStatus#
+		where
+		userid = #userid#
+	</update>
+	
+	<!-- 修改角色信息 -->
+	<update id="updateUserRole" parameterClass="userInfo">
+		update qk_Role
+		set
+		users =users+#userid#
+		where
+		ID =#userlb#
+	</update>
+</sqlMap>

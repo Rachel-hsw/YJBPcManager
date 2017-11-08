@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <link rel="stylesheet" href="layui/css/layui.css">
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+  <title>商品采购入库单</title>
+  <style>
+	body{
+		min-width:1000px;
+	}
+	.top{
+		padding:10px 0;
+		background: #FFF7EA;
+	}
+	 tr th{
+		background: #FFDCA9;
+	 }
+	tbody tr:nth-child(even){
+		background: #FFF7EA;
+	}
+	.footer{
+		background: #FFF7EA;
+	}
+	.on{
+		background-color: #4EC2FF !important;
+	}
+  </style>
+ </head>
+ <body>
+ 
+<form class="layui-form" action="">
+ <!-- ------------------头部第一行----------------------- -->
+ 	<div class="top">
+ 		<div class="layui-inline">
+ 			<label class="layui-form-label">入库日期：</label>
+ 			<div class="layui-input-inline">
+ 				<input type="text" class="layui-input" disabled placeholder="yyyy-MM-dd">
+ 			</div>
+ 		</div>
+ 		<div class="layui-inline" style=" margin:0 117px;">
+ 			<p style="font-size:22px;">商品采购入库单</p>
+ 		</div>
+ 		<div class="layui-inline">
+ 			<label class="layui-form-label" >入库编号：</label>
+ 			<div class="layui-input-inline">
+ 				<input type="text" class="layui-input" placeholder="" disabled>
+ 			</div>
+ 		</div>
+		<!-- -----------------头部第二行------------------------ -->
+		<div style="margin-top:10px;">
+			<div class="layui-row">
+				<div class="layui-col-xs4">
+					<div class="layui-inline">
+						<label class="layui-form-label">进货单位：</label>
+						<div class="layui-input-inline purchasingunit">
+							<input type="text" class="layui-input " placeholder="" disabled>
+						</div>
+					</div>
+				</div>
+				<div class="layui-col-xs4">
+					<div class="layui-inline">
+						<label class="layui-form-label">进货仓库：</label>
+						<div class="layui-input-inline">
+							<select name="" id="" class="layui-input">
+								<option value="">11112312123123</option>
+								<option value="">222</option>
+								<option value="">333</option>
+							</select>
+						</div>
+					</div>
+					
+				</div>
+				<div class="layui-col-xs4">
+					<div class="layui-inline">
+						<label class="layui-form-label">制单人：</label>
+						<div class="layui-input-inline">
+							<input type="text" class="layui-input" placeholder="" disabled>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- ------------------头部第三行---------------------- -->
+		<div style="margin:10px 0;">
+			<div class="layui-row">
+				<div class="layui-col-xs4">
+					<div class="layui-inline">
+						<label class="layui-form-label">原始单号：</label>
+						<div class="layui-input-inline">
+							<input type="text" class="layui-input" placeholder="">
+						</div>
+					</div>
+				</div>
+				<div class="layui-col-xs4">
+					<div class="layui-inline">
+						<label class="layui-form-label">采购员：</label>
+						<div class="layui-input-inline">
+							<select name="" id="" class="layui-input">
+								<option value="">11112312123123</option>
+								<option value="">222</option>
+								<option value="">333</option>
+							</select>
+						</div>
+					</div>
+					
+				</div>
+				<div class="layui-col-xs4">
+					<div class="layui-inline">
+						<label class="layui-form-label">驾驶员：</label>
+						<div class="layui-input-inline">
+							<select name="" id="" class="layui-input">
+								<option value="">11112312123123</option>
+								<option value="">222</option>
+								<option value="">333</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+ 	</div>
+ 
+	<!-- --------------------表格------------------------- -->
+	<div style="margin:20px 0; box-shadow:0 0 5px #aaa;">
+		<table  class="layui-table" style="overflow:auto; height:400px;">
+			<thead>
+				<tr>
+					<th style="width:30px;">序号</th>
+					<th>商品名称</th>
+					<th>规格</th>
+					<th>单位</th>
+					<th>单价</th>
+					<th>数量</th>
+					<th>重量</th>
+					<th>金额</th>
+					<th>备注</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>0</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>2</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>3</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>4</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>5</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>6</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>7</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>8</td>
+					<td class="click"></td>
+					<td class="td1"></td>
+					<td class="td2"></td>
+					<td class="td3" contenteditable></td>
+					<td class="td4" contenteditable></td>
+					<td class="td5" contenteditable></td>
+					<td class="td6" contenteditable></td>
+					<td class="td7" contenteditable></td>
+				</tr>
+				<tr>
+					<td>9</td>
+					<td class="click"></td>
+					<td></td>
+					<td></td>
+					<td contenteditable></td>
+					<td contenteditable></td>
+					<td contenteditable></td>
+					<td contenteditable></td>
+					<td contenteditable></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- -------------------- 底部------------------------- -->
+	<div class="layui-row footer">
+		<div class="layui-col-xs4">
+			<div class="layui-inline" style="margin-bottom:5px;">
+				<label class="layui-form-label">合计重量：</label>
+				<div class="layui-input-inline">
+					<input type="text" class="layui-input" placeholder="">
+				</div>
+			</div>
+			<div class="layui-inline" style="margin-bottom:5px;">
+				<label class="layui-form-label">合计数量：</label>
+				<div class="layui-input-inline">
+					<input type="text" class="layui-input" placeholder="">
+				</div>
+			</div>
+			<div class="layui-inline" style="margin-bottom:5px;">
+				<label class="layui-form-label">合计金额：</label>
+				<div class="layui-input-inline">
+					<input type="text" class="layui-input" placeholder="">
+				</div>
+			</div>
+			<div class="layui-inline" style="margin-bottom:5px;">
+				<label class="layui-form-label">运价：</label>
+				<div class="layui-input-inline">
+					<input type="text" class="layui-input" placeholder="">
+				</div>
+			</div>
+			<div class="layui-inline" style="margin-bottom:5px;">
+				<label class="layui-form-label">运费：</label>
+				<div class="layui-input-inline">
+					<input type="text" class="layui-input" placeholder="">
+				</div>
+			</div>
+		</div>
+		<div class="layui-col-xs4">
+			<fieldset class="layui-elem-field site-demo-button" style="padding-left:10px;">
+				<legend>功能区</legend>
+				<div>
+					<button class="layui-btn layui-btn-normal del">删除行</button>
+					<button class="layui-btn layui-btn-warm clear">清空表</button>
+				<!--	<div class="layui-input-inline">
+						<select name="" id="" style="height:38px; border:1px solid #f60; margin: 5px 0;">
+							<option value="">1</option>
+							<option value="">2</option>
+							<option value="">3</option>
+						</select>
+					</div>
+				-->
+					<div class="layui-form-item" pane="">
+						<input type="checkbox" name="" lay-skin="primary" title="仓库">
+						<input type="checkbox" name="" lay-skin="primary" title="打印">
+					</div>
+			  </div>
+			</fieldset>
+		</div>
+		<div class="layui-col-xs4">
+			<div style="margin-left:20px; margin-top:20px;">
+				<input type="submit" class="layui-btn layui-btn-big layui-btn-primary layui-btn-radius" value="采购保存">
+			</div>
+			<div style="margin-left:20px; margin-top:20px;">
+			<button class="layui-btn layui-btn-big layui-btn-primary layui-btn-radius">废弃退出</button>
+			</div>
+		</div>
+	</div>
+</form>
+  <script src="layui/layui.all.js"></script>
+  <script>
+  function fn(){
+	console.log($(this).html())
+  }
+ 	layui.use(["laydate","table","layer"],function(){
+ 		var layer=layui.layer;
+ 	});
+	/*----------------- 商品名称双击事件开始---------------------*/
+	$(".click").each(function(i){
+		$(this).dblclick(function(){
+			layer.open({
+				type: 1,
+				title: '商品列表',
+				btn:["取消"],
+				area: ['1000px', '600px'],
+				fix: false, //不固定
+				maxmin: true,
+				shadeClose:true,
+				content: "<table class='layui-table'>"+
+				"<thead>"+
+					"<tr>"+
+						"<th>序号</th>"+
+						"<th>商品名称</th>"+
+						"<th>规格</th>"+
+						"<th>单位</th>"+
+						"<th>单价</th>"+
+						"<th>重量</th>"+
+						"<th>金额</th>"+
+						"<th>数量</th>"+
+						"<th>备注</th>"+
+					"</tr>"+
+					"</thead>"+
+					"<tbody>"+
+						"<tr class='purchase'>"+
+							"<td>1</td>"+
+							"<td class='t1'>aaaaaaaaaaaaa</td>"+
+							"<td class='t2'>sssssssss</td>"+
+							"<td class='t3'>dddddddddd</td>"+
+							"<td class='t4'>ffffffffff</td>"+
+							"<td class='t5'>gggggggggg</td>"+
+							"<td class='t6'>345</td>"+
+							"<td class='t7'>肥肉肉</td>"+
+							"<td class='t8'>一月又一月</td>"+
+						"</tr>"+
+						"<tr class='purchase'>"+
+							"<td>2</td>"+
+							"<td class='t1'>aaaaaaaaaaaaa</td>"+
+							"<td class='t2'>sssssssss</td>"+
+							"<td class='t3'>dddddddddd</td>"+
+							"<td class='t4'>ffffffffff</td>"+
+							"<td class='t5'>gggggggggg</td>"+
+							"<td class='t6'>345</td>"+
+							"<td class='t7'>肥肉肉</td>"+
+							"<td class='t8'>一月又一月</td>"+
+						"</tr>"+
+						"<tr class='purchase'>"+
+							"<td>3</td>"+
+							"<td class='t1'>aaaaaaaaaaaaa</td>"+
+							"<td class='t2'>sssssssss</td>"+
+							"<td class='t3'>dddddddddd</td>"+
+							"<td class='t4'>ffffffffff</td>"+
+							"<td class='t5'>gggggggggg</td>"+
+							"<td class='t6'>345</td>"+
+							"<td class='t7'>肥肉肉</td>"+
+							"<td class='t8'>一月又一月</td>"+
+						"</tr>"+
+					"</tbody>"+
+				"</table>"
+			})
+			var that=$(this).parent();
+			$(".purchase").click(function(){
+				var t1=$(this).find(".t1").html(),
+					t2=$(this).find(".t2").html(),
+					t3=$(this).find(".t3").html(),
+					t4=$(this).find(".t4").html(),
+					t5=$(this).find(".t5").html(),
+					t6=$(this).find(".t6").html(),
+					t7=$(this).find(".t7").html(),
+					t8=$(this).find(".t8").html();
+					that.find(".click").html(t1);
+					that.find(".td1").html(t2);
+					that.find(".td2").html(t3);
+					that.find(".td3").html(t4);
+					that.find(".td4").html(t5);
+					that.find(".td5").html(t6);
+					that.find(".td6").html(t7);
+					that.find(".td7").html(t8);
+					layer.closeAll('page');
+			})
+			
+		})
+	});
+	/*----------------- 商品名称双击事件结束---------------------*/
+
+	/*----------------- 进货单位开始---------------------*/
+	$(".purchasingunit").dblclick(function(){
+			layer.open({
+				type: 1,
+				title: '进货单位',
+				btn:["取消"],
+				area: ['1000px', '600px'],
+				fix: false, //不固定
+				maxmin: true,
+				shadeClose:true,
+				content: "<table class='layui-table'>"+
+						"<thead>"+
+							"<tr>"+
+								"<th>单位名称</th>"+
+								"<th>单位简称</th>"+
+								"<th>拼音首字母</th>"+
+								"<th>联系人</th>"+
+								"<th>联系地址</th>"+
+								"<th>联系电话</th>"+
+							"</tr>"+
+						"</thead>"+
+						"<tbody>"+
+							"<tr>"+
+								"<td class='com'>苏州铨昇网络科技有限公司</td>"+
+								"<td>苏州铨昇</td>"+
+								"<td>szqs</td>"+
+								"<td>方总</td>"+
+								"<td>太仓</td>"+
+								"<td>13382110368</td>"+
+							"</tr>"+
+							"<tr>"+
+								"<td class='com'>苏州铨昇网络科技有限公司</td>"+
+								"<td>苏州铨昇</td>"+
+								"<td>szqs</td>"+
+								"<td>方总</td>"+
+								"<td>太仓</td>"+
+								"<td>13382110368</td>"+
+							"</tr>"+
+						"</tbody>"+
+					"</table>"
+			})
+			var that=$(this).find("input");
+			$("tbody tr").click(function(){
+				that.val($(this).find(".com").html());
+				layer.closeAll("page");
+			})
+	})
+	/*----------------- 进货单位结束---------------------*/
+	$("tbody tr").click(function(i){
+		for(var i=0;i<$("tbody tr").length;i++){
+			$("tbody tr").eq(i).removeClass("on");
+		}
+			$(this).addClass("on");
+	})
+	// 删除行
+	$(".del").click(function(){
+		var tr=$("tbody tr");
+		for(var i=0;i<tr.length;i++){
+			if(tr.eq(i).hasClass("on")){
+				tr.eq(i).find(".click").html("");
+				tr.eq(i).find(".td1").html("");
+				tr.eq(i).find(".td2").html("");
+				tr.eq(i).find(".td3").html("");
+				tr.eq(i).find(".td4").html("");
+				tr.eq(i).find(".td5").html("");
+				tr.eq(i).find(".td6").html("");
+				tr.eq(i).find(".td7").html("");
+			}
+		}
+		return false;
+	})
+	// 清空表
+	$(".clear").click(function(){
+		var tr=$("tbody tr");
+		for(var i=0;i<tr.length;i++){
+			tr.eq(i).find(".click").html("");
+			tr.eq(i).find(".td1").html("");
+			tr.eq(i).find(".td2").html("");
+			tr.eq(i).find(".td3").html("");
+			tr.eq(i).find(".td4").html("");
+			tr.eq(i).find(".td5").html("");
+			tr.eq(i).find(".td6").html("");
+			tr.eq(i).find(".td7").html("");
+		}
+		return false;
+	})
+
+  </script>
+ </body>
+</html>

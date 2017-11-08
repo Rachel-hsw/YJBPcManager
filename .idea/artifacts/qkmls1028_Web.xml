@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-ear" name="qkmls1028:Web">
+    <output-path>$PROJECT_DIR$/out/artifacts/qkmls1028_Web</output-path>
+    <root id="root">
+      <element id="artifact" artifact-name="qkmls1028:Web exploded" />
+    </root>
+  </artifact>
+</component>
