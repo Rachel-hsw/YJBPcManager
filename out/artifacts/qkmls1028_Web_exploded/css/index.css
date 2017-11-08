@@ -1,0 +1,68 @@
+@charset "utf-8";
+/* CSS Document */
+/*body{ margin:0px; padding:0px; font-size:12px; font-family:Verdana, Geneva, sans-serif; background:#f1f1f1;}
+.index{ width:1123px; height:794px; background:#FFF; margin:0px auto;}
+.index ul{ width:1095px; height:720px;  margin:0px auto; padding:0px; padding-top:74px; list-style:none;}
+.index ul li{ width:219px; height:321px; float:left; background:#f1f1f1; text-align:center;}
+.index ul li p{ width:100%; text-align:center; line-height:50px; margin:0px; padding:0px; font-size:18px;}
+.index ul li img{ width:160px; height:160px; margin:0px auto;}
+.index ul li span{ display:block; width:100%; text-align:center; line-height:55px; font-size:30px; font-weight:bold; font-family:"微软雅黑";}*/
+
+/* CSS Document */
+body {
+	margin: 0px;
+	padding: 0px;
+	font-size: 12px;
+	font-family: Verdana, Geneva, sans-serif;
+	background: #f1f1f1;
+}
+
+.index {
+	width: 1123px;
+	height: 794px;
+	background: #FFF;
+	margin: 0px auto;
+}
+
+.index ul {
+	width: 1095px;
+	height: 720px;
+	margin: 0px auto;
+	padding: 0px;
+	padding-top: 74px;
+	list-style: none;
+}
+
+.index ul li {
+	width: 219px;
+	height: 321px;
+	float: left;
+	background: #f1f1f1;
+	text-align: center;
+}
+
+.index ul li p {
+	width: 100%;
+	text-align: center;
+	line-height: 50px;
+	margin: 0px;
+	padding: 0px;
+	font-size: 18px;
+}
+
+.index ul li img {
+	width: 200px;
+	height: 200px;
+	margin: 0px auto;
+	margin-top: 30px;
+}
+
+.index ul li span {
+	display: block;
+	width: 100%;
+	text-align: center;
+	line-height: 75px;
+	font-size: 45px;
+	font-weight: 800;
+	font-family: "微软雅黑";
+}
