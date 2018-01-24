@@ -2,8 +2,33 @@ package com.res.pc.code.manager.bean;
 
 public class PurItemBean {
 	//商品ID,单价，数量，重量，金额，备注
-private String FBillID,FEntryID,FP_Id,FP_Price,FP_Zl,FRemark,FP_Price_Id;
+private String FBillID,FEntryID,FP_Id,FP_Price,FP_Zl,FRemark,FP_Price_Id,FS_Date;
 private String FP_Num,FP_Money,FW_Id;
+private String F_Unit,category;//商品表
+
+public String getF_Unit() {
+	return F_Unit;
+}
+
+public void setF_Unit(String f_Unit) {
+	F_Unit = f_Unit;
+}
+
+public String getCategory() {
+	return category;
+}
+
+public void setCategory(String category) {
+	this.category = category;
+}
+
+public String getFS_Date() {
+	return FS_Date;
+}
+
+public void setFS_Date(String fS_Date) {
+	FS_Date = fS_Date;
+}
 
 public String getFW_Id() {
 	return FW_Id;

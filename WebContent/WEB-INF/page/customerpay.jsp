@@ -11,7 +11,7 @@
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
+<link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet" type="text/css" />
     <title>客户、会员付款单</title>
     <style>
     .top > div{
@@ -26,6 +26,14 @@
     </style>
 </head>
 <body>
+<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a href="#">首页</a></li>
+			<li><a href="#">财务管理</a></li>
+			<li><a href="#">会员付款</a></li>
+		</ul>
+	</div>
 <!--=====头部开始====-->
 <div class="layui-container">
     <h2 style="text-align: center;font-size: 22px;padding:10px 0; ">客户、会员付款单</h2>

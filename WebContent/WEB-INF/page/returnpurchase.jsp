@@ -13,6 +13,7 @@
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath }/layui/css/layui.css">
 <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+<link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet" type="text/css" />
 <title>商品采购入库单</title>
 <style>
 body {
@@ -37,7 +38,7 @@ tbody tr:nth-child(even) {
 }
 
 .on {
-	background-color: #4EC2FF !important;
+	background-color: #ffdca9 !important;
 }
 
 .inp {
@@ -57,7 +58,17 @@ tbody tr:nth-child(even) {
 </style>
 </head>
 <body>
-
+<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a href="#">首页</a></li>
+			<li><a href="#">进货管理</a></li>
+			<li><a href="#">采购退货</a></li>
+		</ul>
+	</div>
+		
+				<p style="font-size: 22px;text-align:center;padding:20px;">商品采购退货单</p>
+			
 	<form class="layui-form"
 		action="${pageContext.request.contextPath}/Manager/returnUpdates.do"
 		method="post">
@@ -72,9 +83,7 @@ tbody tr:nth-child(even) {
 						value="<%=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date())%>">
 				</div>
 			</div>
-			<div class="layui-inline" style="margin: 0 117px;">
-				<p style="font-size: 22px;">商品采购退货单</p>
-			</div>
+		
 			<div class="layui-inline">
 				<label class="layui-form-label">入库编号：</label>
 				<div class="layui-input-inline">
@@ -90,7 +99,7 @@ tbody tr:nth-child(even) {
 						<div class="layui-inline">
 							<label class="layui-form-label">进货单位：</label>
 							<div class="layui-input-inline purchasingunit">
-								<input type="text" class="layui-input " placeholder="" disabled >
+								<input type="text" class="layui-input " placeholder="双击选择" disabled >
 
 								<input name="FSupplier_Id" class="kind" value="" type="hidden"  required>
 							</div>
@@ -129,7 +138,7 @@ tbody tr:nth-child(even) {
 							<label class="layui-form-label">原始单号：</label>
 							<div class="layui-input-inline">
 								<input name="FSource_Id" type="text" class="layui-input" required
-									placeholder="">
+									placeholder="必填">
 							</div>
 						</div>
 					</div>
@@ -139,7 +148,7 @@ tbody tr:nth-child(even) {
 							<div class="layui-input-inline">
 								<select name="FJsr" id="" class="layui-input">
 									<c:forEach items="${userlist}" var="item">
-										<option value="${item.userid}">${item.username}</option>
+										<option value="${item.userid}">${item.name}</option>
 									</c:forEach>
 								</select>
 							</div>
@@ -195,7 +204,7 @@ tbody tr:nth-child(even) {
 								class="inp" type="text"></td>
 							<td class="td7"><input name="itemsList[${x}].FRemark"
 								class="inp" type="text"></td>
-							<td class="td8"><input name="itemsList[${x}].FP_Id"
+							<td class="td8" style="display:none;"><input name="itemsList[${x}].FP_Id"
 								class="inp" type="hidden"></td>
 						</tr>
 
@@ -210,31 +219,31 @@ tbody tr:nth-child(even) {
 				<div class="layui-inline" style="margin-bottom: 5px;">
 					<label class="layui-form-label">合计重量：</label>
 					<div class="layui-input-inline">
-						<input type="text" class="layui-input" name="FZl" id="myzl" placeholder="" required>
+						<input type="text" class="layui-input  huang" name="FZl" id="myzl" placeholder="" required  pattern="[0-9]*">
 					</div>
 				</div>
 				<div class="layui-inline" style="margin-bottom: 5px;">
 					<label class="layui-form-label">合计数量：</label>
 					<div class="layui-input-inline">
-						<input type="text" class="layui-input"  name="FSl" id="mynum"  placeholder="" required>
+						<input type="text" class="layui-input huang"  name="FSl" id="mynum"  placeholder="" required  pattern="[0-9]*"> 
 					</div>
 				</div>
 				<div class="layui-inline" style="margin-bottom: 5px;">
 					<label class="layui-form-label">合计金额：</label>
 					<div class="layui-input-inline">
-						<input type="text" class="layui-input" name="FJe" id="mymoney" placeholder="" required>
+						<input type="text" class="layui-input huang" name="FJe" id="mymoney" placeholder="" required  pattern="[0-9]*">
 					</div>
 				</div>
-				<div class="layui-inline" style="margin-bottom: 5px;">
+			<!-- 	<div class="layui-inline" style="margin-bottom: 5px;">
 					<label class="layui-form-label">运价：</label>
 					<div class="layui-input-inline">
 						<input type="text" class="layui-input" placeholder="">
 					</div>
-				</div>
+				</div> -->
 				<div class="layui-inline" style="margin-bottom: 5px;">
 					<label class="layui-form-label">运费：</label>
 					<div class="layui-input-inline">
-						<input type="text" class="layui-input" placeholder="">
+						<input type="text" class="layui-input" placeholder="" name="FYf">
 					</div>
 				</div>
 			</div>
@@ -258,8 +267,8 @@ tbody tr:nth-child(even) {
 					</div>
 				-->
 						<div class="layui-form-item" pane="">
-							<input type="checkbox" name="" lay-skin="primary" title="仓库">
-							<input type="checkbox" name="" lay-skin="primary" title="打印">
+						<!-- 	<input type="checkbox" name="" lay-skin="primary" title="仓库">
+							<input type="checkbox" name="" lay-skin="primary" title="打印"> -->
 						</div>
 					</div>
 				</fieldset>
@@ -270,22 +279,30 @@ tbody tr:nth-child(even) {
 						class="layui-btn layui-btn-big layui-btn-primary layui-btn-radius"
 						value="退货保存">
 				</div>
-				<div style="margin-left: 20px; margin-top: 20px;">
+				<!-- <div style="margin-left: 20px; margin-top: 20px;">
 					<button
 						class="layui-btn layui-btn-big layui-btn-primary layui-btn-radius">废弃退出</button>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</form>
 	<script src="${pageContext.request.contextPath }/layui/layui.all.js"></script>
 	<script>
-  console.log($("#data").val());
-  function fn(){
-	console.log($(this).html())
-  }
- 	layui.use(["laydate","table","layer"],function(){
- 		var layer=layui.layer;
- 	});
+	$(".huang").focus(function(){
+		$(this).blur();
+	})
+ 
+
+  layui.use(["laydate","table","layer"],function(){
+		var layer=layui.layer;
+		var ifsucesss="${ifsucesss}";
+		if (ifsucesss!=null&&ifsucesss=="true") {
+			
+			layer.msg("成功");
+			}else if(ifsucesss!=null&&ifsucesss=="false"){
+				layer.msg("${result}");
+			}
+	});
 	/*----------------- 商品名称双击事件开始---------------------*/
 	$(".click").each(function(i){
 		$(this).dblclick(function(){
@@ -422,14 +439,14 @@ tbody tr:nth-child(even) {
 		var tr=$("tbody tr");
 		for(var i=0;i<tr.length;i++){
 			if(tr.eq(i).hasClass("on")){
-				tr.eq(i).find(".click").html("");
-				tr.eq(i).find(".td1").html("");
-				tr.eq(i).find(".td2").html("");
-				tr.eq(i).find(".td3").html("");
-				tr.eq(i).find(".td4").html("");
-				tr.eq(i).find(".td5").html("");
-				tr.eq(i).find(".td6").html("");
-				tr.eq(i).find(".td7").html("");
+				tr.eq(i).find(".click input").val("");
+				tr.eq(i).find(".td1 input").val("");
+				tr.eq(i).find(".td2 input").val("");
+				tr.eq(i).find(".td3 input").val("");
+				tr.eq(i).find(".td4 input").val("");
+				tr.eq(i).find(".td5 input").val("");
+				tr.eq(i).find(".td6 input").val("");
+				tr.eq(i).find(".td7 input").val("");
 			}
 		}
 		return false;
@@ -438,14 +455,14 @@ tbody tr:nth-child(even) {
 	$(".clear").click(function(){
 		var tr=$("tbody tr");
 		for(var i=0;i<tr.length;i++){
-			tr.eq(i).find(".click").html("");
-			tr.eq(i).find(".td1").html("");
-			tr.eq(i).find(".td2").html("");
-			tr.eq(i).find(".td3").html("");
-			tr.eq(i).find(".td4").html("");
-			tr.eq(i).find(".td5").html("");
-			tr.eq(i).find(".td6").html("");
-			tr.eq(i).find(".td7").html("");
+			tr.eq(i).find(".click input").val("");
+			tr.eq(i).find(".td1 input").val("");
+			tr.eq(i).find(".td2 input").val("");
+			tr.eq(i).find(".td3 input").val("");
+			tr.eq(i).find(".td4 input").val("");
+			tr.eq(i).find(".td5 input").val("");
+			tr.eq(i).find(".td6 input").val("");
+			tr.eq(i).find(".td7 input").val("");
 		}
 		return false;
 	})

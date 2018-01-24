@@ -18,7 +18,7 @@ public class QueryCustomerVo {
 	 private String email;
 
 	 private String createtime;
-     private String FStatus="0";
+     private String FStatus;
 	 public String getFStatus() {
 		return FStatus;
 	}

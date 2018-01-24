@@ -78,8 +78,8 @@ function isDel(userid,FStatus){
 		<span>位置：</span>
 		<ul class="placeul">
 			<li><a href="#">首页</a></li>
+			<li><a href="#">档案信息</a></li>
 			<li><a href="#">用户管理</a></li>
-			<li><a href="#">用户列表</a></li>
 		</ul>
 	</div>
 
@@ -99,9 +99,10 @@ function isDel(userid,FStatus){
 	<table class="tablelist">
 		<thead>
 			<tr>
-				<th width="3%">序号<i class="sort"><img
+				<th width="3%">用户ID<i class="sort"><img
 						src="${pageContext.request.contextPath}/images/px.gif" /></i></th>
-					<th>帐号</th>
+						<th>推荐ID</th>
+					<th>账号</th>
 				<th dataType="roomType">姓名</th>
 				<th>手机号</th>
 				<th>身份证号</th>
@@ -113,9 +114,10 @@ function isDel(userid,FStatus){
 		</thead>
 		<tbody>
 		
-		  <c:forEach items="${requestScope.pageBean.queryNumberList}" var="item" varStatus="s">
+		      <c:forEach items="${requestScope.pageBean.queryNumberList}" var="item" varStatus="s">
 		                 <tr>
-					    <td>${s.index + 1}</td>
+					    <td>${item.userid}</td>
+					    <td>${item.recommendId}</td>
 					<td>${item.username}</td>
 					<td>${item.name}</td>
 						<td >${item.tel}</td>
@@ -243,7 +245,7 @@ value="${pageBean.currentPage }" style="width: 50px; height:17px; outline:none; 
 			$(this).html(txt);
 		};
 	})
-	
+
 		
 	</script>
 

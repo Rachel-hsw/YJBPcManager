@@ -21,8 +21,8 @@
         <span>位置：</span>
         <ul class="placeul">
             <li><a href="#">首页</a></li>
+            <li><a href="#">档案信息</a></li>
             <li><a href="#">仓库管理</a></li>
-            <li><a href="#">仓库列表</a></li>
         </ul>
     </div>
     <br>
@@ -190,6 +190,6 @@
             window.location.href="${pageContext.request.contextPath }/Warehouse/warehousePageLise.do?currentPage="+obj.value+"&FName=${vo.FName }&FAddress=${vo.FAddress}&FRemark=${vo.FRemark}&FTel=${vo.FTel}";
         }
     }
-
+    window.parent.document.getElementById("index").rows="*,0";
 </script>
 </html>

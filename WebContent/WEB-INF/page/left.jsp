@@ -106,6 +106,9 @@ $(function(){
 				<li><cite></cite><a
 					href=' <st:url value="/Manager/RoleList/1.do"></st:url>'
 					target="rightFrame">角色列表</a><i></i></li>
+					<li><cite></cite><a
+					href=' <st:url value="/Manager/setReward.do"></st:url>'
+					target="rightFrame">返利设置</a><i></i></li>
 			</ul>
 		</dd>
 		<%}%>

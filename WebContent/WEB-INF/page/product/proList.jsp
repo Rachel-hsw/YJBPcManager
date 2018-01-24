@@ -70,8 +70,8 @@ function dawo(){
 		<span>位置：</span>
 		<ul class="placeul">
 			<li><a href="#">首页</a></li>
+			<li><a href="#">档案信息</a></li>
 			<li><a href="#">产品管理</a></li>
-			<li><a href="#">产品列表</a></li>
 		</ul>
 	</div>
 
@@ -92,7 +92,7 @@ function dawo(){
 			<ul class="toolbar">
 				<li>
 				<a href="${pageContext.request.contextPath }/Manager/queryProdInfo.do?method=add">
-					<span><img src="/ResPcManager/images/t01.png" /></span>添加
+					<span><img src="${pageContext.request.contextPath }/images/t01.png" /></span>添加
 					</a>
 				</li>
 			</ul>
@@ -105,11 +105,12 @@ function dawo(){
 					<th>产品图片</th>
 				<th>商品名称</th>
 				<th>价格</th>
-				<th>规格型号</th>
+				<th>种类</th>
 				<th>单位</th>
 				<th>重量</th>
 				<th>产品描述</th>
 				<th>状态</th>
+				<th width="5%">分类</th>
 				<th width="15%">操作</th>
 			</tr>
 		</thead>
@@ -120,18 +121,32 @@ function dawo(){
 					    <td>${s.index + 1}</td>
 				<td width="20%">
             <img src="../${item.imgurl}"  width="20%" style="cursor:pointer;"/></a></td>
+    <%--       <img src="http://gsdy.eicp.net:9091/${item.imgurl}"  width="20%" style="cursor:pointer;"/></a></td>  --%>
 					<td>${item.name}</td>
 					<td>${item.price}</td>
-						<td>${item.category}</td>
-						<td>${item.f_Zl}</td>
+						<td><c:if test="${item.category=='1' }">
+          						 不老传说二代修复、保养类
+        						 </c:if>
+        						 <c:if test="${item.category=='2' }">
+          					不老红妍第三代修复、保养类
+        						 </c:if>
+        						 <c:if test="${item.category=='3' }">
+          						强化修复类
+        						 </c:if>
+        						 <c:if test="${item.category=='4' }">
+          					   药液、修复类
+        						 </c:if>
+        						 </td>
 						<td>${item.f_Unit}</td>
+						<td>${item.f_Zl}</td>
 						<td class="miaoshu">${item.description}</td>
-						<td>${item.FStatus==0?'有效':'无效'}</td>
+						<td>${item.FStatus==0?'下架':'上架'}</td>
+						<td>${item.divName}</td>
 					<td>
-					
+						
 					<a
 						href='<st:url value="/Manager/delProd.do?id=${item.id}&FStatus=${item.FStatus}&queryname=${vo.queryname }&querystatus=${vo.querystatus}"></st:url>'
-						class="tablelink">${item.FStatus==0?'无效':'有效'}</a>
+						class="tablelink">${item.FStatus==0?'上架':'下架'}</a>
 					
 						<a
 						href='<st:url value="/Manager/queryProdInfo.do?Id=${item.id}&method=update&queryname=${vo.queryname }&querystatus=${vo.querystatus}"></st:url>'

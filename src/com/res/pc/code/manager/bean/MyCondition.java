@@ -6,9 +6,15 @@ import java.util.List;
 
 public class MyCondition {
 	//入库日期、入库单号、进货单位、进货仓库、制单人、原始单号、采购员、驾驶员、
-	private String FS_Date,FOrder_Id,FSupplier_Id,FW_Id,FZdy,FSource_Id,FJsr,FS_J_Id,FRemark,FSl,FZl,FJe;
+	private String FS_Date,FOrder_Id,FSupplier_Id,FW_Id,FZdy,FSource_Id,FJsr,FS_J_Id,FRemark,FSl,FZl,FJe,FYf;
 	private List<PurItemBean> itemsList;
 	
+	public String getFYf() {
+		return FYf;
+	}
+	public void setFYf(String fYf) {
+		FYf = fYf;
+	}
 	public String getFSl() {
 		return FSl;
 	}

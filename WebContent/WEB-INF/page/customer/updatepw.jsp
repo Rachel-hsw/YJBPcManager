@@ -5,10 +5,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>80</title>
-<link href="/ResPcManager/css/style.css" rel="stylesheet"
+<link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet"
 	type="text/css" />
 <script type="text/javascript"
-	src="/ResPcManager/js/jquery-1.8.3.min.js"></script>
+	src="${pageContext.request.contextPath}/js/jquery-1.8.3.min.js"></script>
 <script type="text/javascript">
 //去掉字符串空格
 function jtrimstr(str) {
@@ -46,6 +46,7 @@ function check(){
 	
 	return true;
 }
+window.parent.document.getElementById("index").rows="*,0";
 </script>
 </head>
 

@@ -15,6 +15,7 @@
 	href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"
 	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
 	crossorigin="anonymous">
+	<link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet" type="text/css" />
 <script
 	src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"
 	integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
@@ -52,9 +53,22 @@ label {
 		margin-left: 0px;
 	}
 }
+ dl, dt, dd, span {
+
+	display: inline-block;
+}
 </style>
 </head>
 <body>
+<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a href="#">首页</a></li>
+			<li><a href="#">销售管理</a></li>
+			<li><a href="#">销售发货</a></li>
+			<li><a href="#">发货界面</a></li>
+		</ul>
+	</div>
 	<div class="layui-container" id="content">
 		<h2 style="text-align: center;">双鸿公司</h2>
 
@@ -66,15 +80,15 @@ label {
 			action="${pageContext.request.contextPath}/Manager/deliverysumbit.do"
 			method="post" id="form">
 			<input type="hidden" value="${orderlist[0].FBillID}" name="FBillID">
-			<input type="hidden" value="${orderlist[0].FAddress}" name="FW_ID">
+	<%-- 		<input type="hidden" value="${orderlist[0].FAddress}" name="FW_ID"> --%>
 			<div class="form-group">
 				<label for="inupt3">单号:</label> <input type="text"
 					class="form-control input-sm" id="inupt3" name="FOrder_Id"
 					value="${orderlist[0].FOrder_Id}" placeholder="" readonly>
 			</div>
 			<div class="form-group left">
-				<label>发货仓库:</label> <select name="FId" value=""
-					class="form-control input-sm select1" style="width: 168px;">
+				<label>发货仓库:</label> 
+				<select name="FW_ID"  	class="form-control input-sm select1" style="width: 168px;">
 					<c:forEach items="${arealist}" var="item">
 						<option value="${item.FId}">${item.FName}</option>
 					</c:forEach>
@@ -115,13 +129,18 @@ label {
 			<div class="form-group left">
 				<label for="inupt9">快递单号:</label> <input type="text"
 					class="form-control input-sm" id="inupt9" name="FCourier_Number"
-					value="" placeholder="" required>
+					value="" placeholder="必填" required>
 			</div>
-			<div class="form-group left hidden-print">
+			<div class="form-group pull-right hidden-print">
 				<input type="submit" class="btn btn-success"
 					style="margin-left: 100px; margin-top: 10px;" value="确认发货">
 				<button id="print" type="button" class="btn btn-success"
 					style="margin-left: 10px; margin-top: 10px;">打印清单</button>
+					
+				<button type="button" class="btn btn-success"
+					onclick="window.history.go(-1)"
+					style="margin-left: 10px; margin-top: 10px;">返回</button>
+			
 			</div>
 
 			<table class="table table-bordered table-hover table-condensed"
@@ -148,7 +167,7 @@ label {
 							<td>${orderdetail[x].category}</td>
 							<td>${orderdetail[x].f_Unit}</td>
 							<td>${orderdetail[x].price}</td>
-							<td><input type="hidden" value="${orderdetail[x].FP_Num}" name="itemsList[${x}].FP_Num"></td>
+							<td><input type="text" value="${orderdetail[x].FP_Num}" name="itemsList[${x}].FP_Num"></td>
 							<td>${orderdetail[x].FP_Zl}</td>
 							<td>${orderdetail[x].FP_Money}</td>
 							<td>${orderdetail[x].FRemark}</td>
@@ -196,11 +215,7 @@ label {
 					</div>
 				</div>
 			</div>
-			<div style="text-align: right" class="hidden-print">
-				<button type="button" class="btn btn-success"
-					onclick="window.history.go(-1)"
-					style="margin-left: 10px; margin-top: 10px;">返回</button>
-			</div>
+			
 		</form>
 	</div>
 	<script src="${pageContext.request.contextPath }/layui/layui.all.js"></script>

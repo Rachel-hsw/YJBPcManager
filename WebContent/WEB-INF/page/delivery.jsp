@@ -14,6 +14,7 @@
 	href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"
 	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
 	crossorigin="anonymous">
+	<link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet" type="text/css" />
 <script
 	src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"
 	integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
@@ -24,7 +25,14 @@
 </style>
 </head>
 <body style="min-width: 1400px;">
-
+<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a href="#">首页</a></li>
+			<li><a href="#">销售管理</a></li>
+			<li><a href="#">销售发货</a></li>
+		</ul>
+	</div>
 	<form action="${pageContext.request.contextPath}/Manager/delivery.do" method="POST" style="margin-top: 20px;">
 		<div class="layui-form">
 			<div class="layui-form-item">

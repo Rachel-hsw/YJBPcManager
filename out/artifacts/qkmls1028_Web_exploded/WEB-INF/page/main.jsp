@@ -6,7 +6,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-<title>青稞麦绿素管理系统界面</title>
+<title>沂健宝后台管理系统</title>
 <style>
 	*{margin:0;padding:0;}
 	#home-top-msg{

@@ -92,6 +92,7 @@
 				}
 			};
 		})
+		window.parent.document.getElementById("index").rows="*,0";
 	</script>
 
 </body>

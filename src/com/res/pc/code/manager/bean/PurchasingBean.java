@@ -1,7 +1,25 @@
 package com.res.pc.code.manager.bean;
 
 public class PurchasingBean {
-	private String FBillID,	GUID,	FOrder_Id,	FSource_Id,	FSupplier_Id,FW_Id,	FS_J_Id,FS_Date,	FYf,	FSl	,FZl,	FJe,	FZdy,	FJsr,username,	Fstatus	,FRemark ;
+	private String FBillID,	GUID,	FOrder_Id,	FSource_Id,	FSupplier_Id,FW_Id,	FS_J_Id,FS_Date,	FYf,	FSl	,FZl,	FJe,	FZdy,	FJsr,username	,FRemark ;
+private String FstatusText;
+private int Fstatus;
+
+	public int getFstatus() {
+	return Fstatus;
+}
+
+public void setFstatus(int fstatus) {
+	Fstatus = fstatus;
+}
+
+	public String getFstatusText() {
+	return FstatusText;
+}
+
+public void setFstatusText(String fstatusText) {
+	FstatusText = fstatusText;
+}
 
 	public String getUsername() {
 		return username;
@@ -124,13 +142,7 @@ public class PurchasingBean {
 		FJsr = fJsr;
 	}
 
-	public String getFstatus() {
-		return Fstatus;
-	}
-
-	public void setFstatus(String fstatus) {
-		Fstatus = fstatus;
-	}
+	
 
 	public String getFRemark() {
 		return FRemark;

@@ -3,7 +3,7 @@ package com.res.pc.code.manager.bean;
 import java.util.List;
 
 public class DeliveryBean {
-	//单据ID	地址ID	快递公司	货运单号	运费	发货人/签收人	发货时间	签收时间	运单图片	备注	发货仓库
+	//单据ID	  仓库ID	快递公司	货运单号	运费	发货人/签收人	发货时间	签收时间	运单图片	备注	地址id
 
 	private String FBillID,	FW_ID,	FExpress,	FCourier_Number,	FFreight,	FConsignor,	FDelivery_Time,	FSign_In_Time,	FImg,	FRemark,	FId;
 	private List<PurItemBean> itemsList;

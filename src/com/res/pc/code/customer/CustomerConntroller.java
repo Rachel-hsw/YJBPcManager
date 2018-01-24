@@ -22,8 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.res.pc.code.customer.bean.Examine;
+import com.res.pc.code.customer.bean.QueryCustomerReate;
 import com.res.pc.code.customer.bean.QueryCustomerVo;
+import com.res.pc.code.customer.bean.QueryExamineVo;
+import com.res.pc.code.customer.bean.Rebate;
 import com.res.pc.code.customer.service.CustomerServiceImpl;
+import com.res.pc.code.manager.bean.Orders;
 import com.res.pc.code.manager.bean.SupplierBean;
 import com.res.pc.code.manager.bean.UserInfo;
 import com.res.pc.code.vo.BeginingVo;
@@ -203,5 +208,91 @@ public class CustomerConntroller {
 		return customerList(vo,request, response);
 	}
 	
+	@RequestMapping(value = "/examineList" )
+	public String examineList(QueryExamineVo vo,HttpServletRequest request , HttpServletResponse response)
+	{
+		PageBean<Examine> pageBean = null;
+		vo.setBegin(vo.getCurrentPage());
+		vo.setEnd("20");
+
+		try {
+			pageBean = customerService.queryExamineList(vo);
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		request.setAttribute("vo", vo);
+		request.setAttribute("pageBean", pageBean);
+		return "customer/ExamineList";
+	}
+	
+	@RequestMapping(value = "/queryExamineInfo/{id}" ,method = RequestMethod.GET)
+	public String queryExamineInfo(QueryExamineVo vo,HttpServletRequest request , HttpServletResponse response,
+			@PathVariable("id") String FExamine_id)
+	{
+		
+		try{
+			
+			Examine info = customerService.queryExamineInfo(FExamine_id);
+			
+			request.setAttribute("info", info);
+			request.setAttribute("vo", vo);
+			
+		}
+		catch(Exception e){
+			logger.error("数据库异常",e);
+		}
+		
+		return "customer/ExamineInfo";
+	}
+	
+	
+	@RequestMapping(value = "/updateExamineInfo")
+	public String updateExamineInfo(QueryExamineVo vo,Examine examine,HttpServletRequest request,HttpServletResponse response){
+		
+		try{
+			customerService.updateExamine(examine);
+			
+			
+		}
+		catch(Exception e)
+		{
+			logger.error("数据库异常",e);
+		}
+		
+		return examineList(vo,request, response);
+	}
+	
+	@RequestMapping(value = "/RebateList" )
+	public String RebateList(QueryCustomerReate vo,HttpServletRequest request , HttpServletResponse response)
+	{
+		List<Orders> findReateOrder=null;
+		try {
+			//查询返利列表   Fstatus= 2-待发货；   3-带评价；   2余额 3微信 4现金  FpayWay
+		findReateOrder = customerService.findReateOrder(vo);//
+		} catch (SQLClientInfoException e) {
+			e.printStackTrace();
+		}
+		request.setAttribute("vo", vo);
+		request.setAttribute("findReateOrder", findReateOrder);
+		return "search/selectOrderRebate";
+	}
+	@RequestMapping(value = "/findReateOrderInfo/{id}")
+	public String findReateOrderInfo(HttpServletRequest request , HttpServletResponse response,
+			@PathVariable("id") String Forder_id)
+	{
+		 List<Rebate> findReateOrderInfo=null;
+		try{
+			
+	  findReateOrderInfo = customerService.findReateOrderInfo(Forder_id);
+		
+			
+		}
+		catch(Exception e){
+			logger.error("数据库异常",e);
+		}
+		request.setAttribute("findReateOrderInfo", findReateOrderInfo);
+		return "search/RebateInfo";
+	}
 	
 }

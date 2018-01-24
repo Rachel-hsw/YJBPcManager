@@ -1,4 +1,4 @@
-package com.res.pc.code.manager.bean;
+﻿package com.res.pc.code.manager.bean;
 
 import java.io.Serializable;
 import java.util.List;
@@ -26,10 +26,83 @@ public class Orders implements Serializable {
 	private String FSname;
 	private String Ftel;
 	private String begintime,endtime;
-	
+	private String FpayWay;
  private List <OrdersItem> list;
  private List<Product> prodList;
+ private String address_id;
+ private  String Province,City,County;
+ private  String Fdiscount;
+ private   DeliveryBean deliveryBean;
+	private String name;
+	private String username;
+	private String mark;
+	
+ public String getMark() {
+		return mark;
+	}
+	public void setMark(String mark) {
+		this.mark = mark;
+	}
+public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+//是否升级 1是是，2是否（复销）
+ private String shengji;
+ private String FP_Id;
  
+ 
+ 
+	public String getFP_Id() {
+	return FP_Id;
+}
+public void setFP_Id(String fP_Id) {
+	FP_Id = fP_Id;
+}
+	public DeliveryBean getDeliveryBean() {
+	return deliveryBean;
+}
+public void setDeliveryBean(DeliveryBean deliveryBean) {
+	this.deliveryBean = deliveryBean;
+}
+	public String getShengji() {
+	return shengji;
+}
+public void setShengji(String shengji) {
+	this.shengji = shengji;
+}
+	public String getFdiscount() {
+	return Fdiscount;
+}
+public void setFdiscount(String fdiscount) {
+	Fdiscount = fdiscount;
+}
+	public String getProvince() {
+	return Province;
+}
+public void setProvince(String province) {
+	Province = province;
+}
+public String getCity() {
+	return City;
+}
+public void setCity(String city) {
+	City = city;
+}
+public String getCounty() {
+	return County;
+}
+public void setCounty(String county) {
+	County = county;
+}
 	public String getBegintime() {
 	return begintime;
 }
@@ -174,6 +247,18 @@ public void setEndtime(String endtime) {
 	}
 	public void setProdList(List<Product> prodList) {
 		this.prodList = prodList;
+	}
+	public String getAddress_id() {
+		return address_id;
+	}
+	public void setAddress_id(String address_id) {
+		this.address_id = address_id;
+	}
+	public String getFpayWay() {
+		return FpayWay;
+	}
+	public void setFpayWay(String fpayWay) {
+		FpayWay = fpayWay;
 	}
 	
 

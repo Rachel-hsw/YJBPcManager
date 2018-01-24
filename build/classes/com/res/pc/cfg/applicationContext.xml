@@ -20,8 +20,7 @@
 	</context:component-scan>
 
 	<context:annotation-config />
-	   <aop:aspectj-autoproxy proxy-target-class="true"/>  
-    <bean class="com.res.pc.code.manager.bean.LogAspect" /> 
+	
 
 	<context:property-placeholder
 		location="classpath:com/res/pc/cfg/jdbc.properties" />

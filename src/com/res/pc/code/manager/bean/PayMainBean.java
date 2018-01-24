@@ -2,6 +2,23 @@ package com.res.pc.code.manager.bean;
 
 public class PayMainBean {
 	private String FSupplier_Id,FS_Date,	FIsDefault,	FPayment_id	,FFk_Zje,	FSxf	,FFk_Je	,FJe_Q,	FJe_H,	FRemark	,FPay_Id,	FPay_Name,	FZdy;
+   private String FId,CGID;
+   
+	public String getFId() {
+	return FId;
+}
+
+public void setFId(String fId) {
+	FId = fId;
+}
+
+	public String getCGID() {
+	return CGID;
+}
+
+public void setCGID(String cGID) {
+	CGID = cGID;
+}
 
 	public String getFSupplier_Id() {
 		return FSupplier_Id;

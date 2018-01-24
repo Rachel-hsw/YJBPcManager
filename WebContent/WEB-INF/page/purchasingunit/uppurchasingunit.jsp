@@ -20,7 +20,8 @@
 		<span>位置：</span>
 		<ul class="placeul">
 			<li><a href="#">首页</a></li>
-			<li><a href="#">进货单位管理</a></li>
+			<li><a href="#">档案信息</a></li>
+			<li><a href="#">进货源管理</a></li>
 			<li><a href="#">修改进货源</a></li>
 		</ul>
 	</div>

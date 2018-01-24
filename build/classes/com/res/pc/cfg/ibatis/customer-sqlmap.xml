@@ -3,17 +3,31 @@
 "http://www.ibatis.com/dtd/ibatis-2-config.dtd">
 
 <sqlMap namespace="customer">
-
+    <typeAlias alias=" " type="com.res.pc.code.manager.bean.WarehouseEntity"/>
 		<typeAlias alias="userInfo" type="com.res.pc.code.manager.bean.UserInfo" />
 <typeAlias alias="QueryCustomerVo" type="com.res.pc.code.customer.bean.QueryCustomerVo" />
+<typeAlias alias="QueryExamineVo" type="com.res.pc.code.customer.bean.QueryExamineVo" />
+<typeAlias alias="Examine" type="com.res.pc.code.customer.bean.Examine" />
+<typeAlias alias="Orders" type="com.res.pc.code.manager.bean.Orders" />
+<typeAlias alias="Rebate" type="com.res.pc.code.customer.bean.Rebate"/>
+
+<typeAlias alias="Billnumber" type="com.res.pc.code.manager.bean.Billnumber"/>
+<typeAlias alias="RebateSetting" type="com.res.pc.code.customer.bean.RebateSetting"/>
+<typeAlias alias="Area" type="com.res.pc.code.manager.bean.Area"/>
+<typeAlias alias="Amount" type="com.res.pc.code.customer.bean.Amount"/>
+<typeAlias alias="Orders" type="com.res.pc.code.manager.bean.Orders"/>
+<typeAlias alias="QueryCustomerReate" type="com.res.pc.code.customer.bean.QueryCustomerReate"/>
+
+
 
 				<!-- 查询公司期初-->
 	<select id="selectCustomerAll"  parameterClass="QueryCustomerVo"  resultClass="userInfo">
+	  
 		 <![CDATA[
 	    SELECT *
 		FROM (SELECT *,ROW_NUMBER() OVER (ORDER BY createtime) AS RowNumber
 		FROM qk_user 
-		where 1=1 
+		where 1=1  and username <> 'admin'
 			]]>
 			 <isNotEmpty property="username"  prepend="AND">
                   username like '%$username$%' or name like '%$username$%'
@@ -42,7 +56,7 @@
 	
 		<select id="selectCustomerListCount"  parameterClass="QueryCustomerVo"  resultClass="java.lang.Integer">
 	 <![CDATA[
-		select COUNT(1) from qk_user where 1=1  
+		select COUNT(1) from qk_user where 1=1  and username <> 'admin'
 		]]>
 		
 		<isNotEmpty property="username"  prepend="AND">
@@ -63,7 +77,8 @@
                   <isNotEmpty property="email"  prepend="AND">
                     email =#email#
                 </isNotEmpty>
-	</select>
+               
+	   </select>
 	
 			<!-- 查询用户详情 -->
 	<select id="queryUserInfo" parameterClass="userInfo"
@@ -109,4 +124,224 @@
 		where
 		ID =#userlb#
 	</update>
+	
+				<!-- 查询代理申请-->
+	<select id="selectExamineAll"  parameterClass="QueryExamineVo"  resultClass="Examine">
+		 <![CDATA[
+	    SELECT *
+		FROM (SELECT *,ROW_NUMBER() OVER (ORDER BY FCreatedate desc) AS RowNumber
+		FROM(SELECT 
+		T_Qk_User_Examine.FExamine_id,
+		T_Qk_User_Examine.FLevel,
+		T_Qk_User_Examine.FUser_Id,
+		T_Qk_User_Examine.FCreatedate, 
+		T_Qk_User_Examine.FStatus,
+		qk_user.username  
+		from 
+		T_Qk_User_Examine
+		,  qk_user where T_Qk_User_Examine.FUser_Id=qk_user.userid
+		
+	
+			]]>
+			 <isNotEmpty property="queryFLevel"  prepend="AND">
+                  T_Qk_User_Examine.FLevel=#queryFLevel#
+                </isNotEmpty>
+                  	 <isNotEmpty property="queryFStatus"  prepend="AND">
+                 T_Qk_User_Examine.FStatus=#queryFStatus#
+                </isNotEmpty>
+              
+	 )c)m
+	
+	<![CDATA[	
+		WHERE RowNumber  between $begin$ AND  $end$   
+		]]>
+		</select>
+		
+		<select id="selectExamineAllCount"  parameterClass="QueryExamineVo"  resultClass="java.lang.Integer">
+	 <![CDATA[
+		select COUNT(1) from T_Qk_User_Examine where 1=1  
+		]]>
+		
+		 <isNotEmpty property="queryFLevel"  prepend="AND">
+                  FLevel=#queryFLevel#
+                </isNotEmpty>
+                	 <isNotEmpty property="queryFStatus"  prepend="AND">
+                  FStatus=#queryFStatus#
+                </isNotEmpty>
+	</select>
+	
+		
+					<!-- 查询用户申请代理详情 -->
+	<select id="queryExamineInfo" parameterClass="java.lang.String"
+		resultClass="Examine">
+		select e.*,u.username,u.tel ,c.FOpen_Account,c.FCart_Number,a.PCityname
+		 from T_Qk_User_Examine  e ,
+		 qk_user u ,T_Qk_CompanyAmount c ,T_Qk_areas a where  e.FUser_Id=u.userid and c.FId=e.FCompnay_id  and a.id=e.Farea_code and e.FExamine_id= #FExamine_id#
+	</select>
+	
+		<!-- 该变状态 -->
+	<update id="updateExamine" parameterClass="Examine">
+		update T_Qk_User_Examine
+		set
+		FStatus=#FStatus#,FRemark=#FRemark#
+		where
+		FExamine_id =#FExamine_id#
+	</update>
+	
+	 <insert id="addOrder" parameterClass="Orders" >
+        insert into T_Qk_Orders(FBillID,
+    FOrder_Id,
+     FSource_Id,
+	User_id,
+	FW_Id,
+	FS_J_Id,
+	FS_Date,
+	FYf,
+	FSl,
+	FZl,
+	Fje,
+	FZdy,
+	FJsr,
+	Fstatus,
+	FRemark,
+	FSname,
+	FAddress,
+	Ftel,
+	address_id,
+	updatetime,
+	FpayWay)
+ values(#FBillID#,
+#FOrder_Id#,
+#FSource_Id#,
+#User_id#,
+#FW_Id#,
+#FS_J_Id#,
+#FS_Date#,
+#FYf#,
+#FSl#,
+#FZl#,
+#Fje#,
+#FZdy#,
+#FJsr#,
+#Fstatus#,
+#FRemark#,
+#FSname#,
+#FAddress#,
+#Ftel#,
+#address_id#,
+getdate(),
+#FpayWay#)
+    </insert>
+    
+	  <insert id="addRebate" parameterClass="Rebate" >
+	   insert into
+	  T_Qk_User_Rebate(FUser_Id,
+	  FOrder_ID,
+	  FIntegral,
+	  FRebate,
+	  FAmount,
+	  FGain,
+	  Fe_vouche,
+	  FRebate_name) 
+	  values(
+	  #FUser_Id#,
+	  #FOrder_ID#,
+	  #FIntegral#,
+	  #FRebate#,
+	  #FAmount#,
+	  #FGain#,
+	  #Fe_vouche#,
+	  #FRebate_name#)
+	   </insert>
+	   
+	  
+	  <update id="updateAccount" parameterClass="Rebate">
+		update T_Qk_User_Accounting
+		 set FIntegral=FIntegral+#FIntegral#,
+		 FRebate=FRebate+#FRebate#,
+		 FAmount=FAmount+#FAmount#,
+		 FGain=FGain+#FGain#,
+		 Fbalance=(select Fbalance from T_Qk_User_Accounting where FUser_Id = #FUser_Id#)+#FRebate#,
+		 Fe_vouche=ISNULL(Fe_vouche,0)+#Fe_vouche# 
+		  where 
+		  FUser_Id=#FUser_Id#
+	</update>
+	
+	   <update id="updateBillnumber" parameterClass="Billnumber">
+		 update T_QK_Billnumber 
+		  set FMax= #FMax# where 
+		  FClass=#FClass#
+	</update>
+	
+
+	 	<select id="queryBillnumberInfo" parameterClass="java.lang.String"
+		resultClass="java.lang.String">
+		select FMax from T_QK_Billnumber where FClass=#FClass#
+	</select>
+	 
+	 	<select id="queryRebateSetting" parameterClass="java.lang.String"
+		resultClass="RebateSetting">
+	select * from T_Qk_Spd where Ftype = #Ftype#
+	</select>
+		<select id="queryRebateSettingInfo" parameterClass="java.util.Map"
+		resultClass="RebateSetting">
+	select * from T_Qk_Spd where Ftype = #Ftype# and Lv=#Lv#
+	</select>
+	 	 	<select id="findOrderById" parameterClass="java.lang.String"
+		resultClass="Orders">
+ 	select *  from T_Qk_Orders where FOrder_Id=#FOrder_Id#
+	</select>
+		<select id="queryExamine" parameterClass="java.lang.String"
+		resultClass="Examine">
+		select * from T_Qk_User_Examine  where FExamine_id = #FExamine_id#
+	</select>
+	 	 	
+	 	 	 	<select id="findProxy" parameterClass="java.lang.String" resultClass="Area">
+ 	       select *  from T_Qk_areas where id=#id#
+	</select>
+	
+	 	 	 	  <update id="changePayStateandPayway"   parameterClass="java.util.Map" >
+		update T_Qk_Orders  set Fstatus= #Fstatus#,FpayWay=#payway#,Fdiscount=#Fdiscount#,Fje=#Fje# where FOrder_Id=#FOrder_Id#
+	</update>
+		  <update id="updatelevel"   parameterClass="java.util.Map" >
+		update qk_user set Fproxy=#Fproxy# where userid= #userid#
+		</update>
+	 	 	 	  
+	
+	 	  <update id="updateAmount"   parameterClass="Amount" >
+		update  T_Qk_Amount 
+		set
+		 Fje=#Fje#,
+		 FJe_Y=#FJe_Y#,
+		 FJe_S=#FJe_S#,
+		 FJe_Q=#FJe_Q#,
+		 FJe_H=#FJe_H#,
+		 FDate_First=GETDATE() 
+		 where FBillID=#FBillID#
+	</update>
+		  <update id="updateUserendbalance"   parameterClass="java.util.Map" >
+			update qk_user set ending_balance=#ending_balance#  where userid=#userid#
+	</update>
+		  <update id="updateAreae"   parameterClass="java.util.Map" >
+			update T_Qk_areas set Fuserid=#Fuserid#,PStatus=1  where id=#id#
+	</update>
+	  <!-- select  *  from  T_Qk_Orders  where Fstatus >'1'  and  FpayWay >'1'    -->
+	  	 	<select id="findReateOrder"     parameterClass="QueryCustomerReate" 	resultClass="Orders">
+ 	          <![CDATA[
+	  	 	  
+	  	 	      select  b.name as name,a.* from  T_Qk_Orders a, qk_user b where a.Fstatus >'1'  and  FpayWay >'1' and a.User_id=b.userid
+	  	 	    ]]>
+ 	            <isNotEmpty property="queryOrderId"  prepend="AND">
+                  FOrder_Id  LIKE  '%$queryOrderId$%'
+                </isNotEmpty>
+                 order by FS_Date desc
+ 	        
+	       </select>
+	<!-- and FUser_Id <>0 -->
+	  	 	 	<select id="findReateOrderInfo"   parameterClass="java.lang.String"  resultClass="Rebate">
+ 	     	<![CDATA[	
+	   select b.name as name,a.* from T_Qk_User_Rebate a,qk_user b where a.FUser_Id=b.userid     and a.FOrder_ID= #FOrder_ID# 
+		]]>
+	  	 	 	
+	</select>
 </sqlMap>

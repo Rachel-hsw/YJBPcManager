@@ -13,9 +13,9 @@
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <title>明细页</title>
 </head>
-<body>
+<body >
     <table class="table table-bordered table-hover table-striped">
-        <h4 style="padding:10px 0; text-align: center;" class="layui-bg-blue">明细页</h4>
+        <h4 style="padding:10px 0; text-align: center; background-color:#ffdca9;" class="layui-bg-blue">明细页</h4>
         <thead>
             <tr>
                 <th>序号</th>

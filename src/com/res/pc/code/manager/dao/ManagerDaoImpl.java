@@ -16,19 +16,28 @@ import org.springframework.orm.ibatis.SqlMapClientTemplate;
 import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 import org.springframework.stereotype.Repository;
 
+import com.res.pc.code.customer.bean.Rebate;
+import com.res.pc.code.manager.bean.Billnumber;
 import com.res.pc.code.manager.bean.DeliveryBean;
 import com.res.pc.code.manager.bean.DriverBean;
+import com.res.pc.code.manager.bean.EvaluateBean;
+import com.res.pc.code.manager.bean.ExpenseBean;
 import com.res.pc.code.manager.bean.InitialNavigationsInfo;
 import com.res.pc.code.manager.bean.MyCondition;
 import com.res.pc.code.manager.bean.OperationLog;
 import com.res.pc.code.manager.bean.Orders;
+import com.res.pc.code.manager.bean.PDBean;
+import com.res.pc.code.manager.bean.PDItemBean;
+import com.res.pc.code.manager.bean.PackageBean;
+import com.res.pc.code.manager.bean.PackageItem;
 import com.res.pc.code.manager.bean.PayMainBean;
-import com.res.pc.code.manager.bean.RewardBean;
 import com.res.pc.code.manager.bean.RoleInfo;
+import com.res.pc.code.manager.bean.SpdBean;
 import com.res.pc.code.manager.bean.SupplierBean;
 
 import com.res.pc.code.manager.bean.UserInfo;
 import com.res.pc.code.manager.bean.WarehouseBean;
+import com.res.pc.code.manager.bean.WithdrawBean;
 import com.res.pc.code.manager.bean.PriceBean;
 import com.res.pc.code.manager.bean.Product;
 import com.res.pc.code.manager.bean.PurItemBean;
@@ -425,8 +434,8 @@ public class ManagerDaoImpl extends SqlMapClientDaoSupport {
 
 	// 获取返利列表信息
 	@SuppressWarnings("unchecked")
-	public List<RewardBean> queryAllReward() throws SQLClientInfoException {
-		return sqlMapClient.queryForList("manager.queryAllReward");
+	public List<SpdBean> queryRebateByType() throws SQLClientInfoException {
+		return sqlMapClient.queryForList("manager.queryRebateByType");
 	}
 
 	/**
@@ -435,8 +444,8 @@ public class ManagerDaoImpl extends SqlMapClientDaoSupport {
 	 * @param info
 	 * @throws SQLClientInfoException
 	 */
-	public void updateReward(RewardBean rewardbean) throws SQLClientInfoException {
-		sqlMapClient.update("manager.updateReward", rewardbean);
+	public void updateRebateByTypeAndLv(SpdBean rewardbean) throws SQLClientInfoException {
+		sqlMapClient.update("manager.updateRebateByTypeAndLv", rewardbean);
 	}
 
 	/**
@@ -463,8 +472,8 @@ public class ManagerDaoImpl extends SqlMapClientDaoSupport {
 
 	// 获取用户列表信息
 	@SuppressWarnings("unchecked")
-	public List<UserInfo> queryAllUserB() throws SQLClientInfoException {
-		return sqlMapClient.queryForList("manager.queryAllUserB");
+	public List<UserInfo> queryAllUserB(String userlb) throws SQLClientInfoException {
+		return sqlMapClient.queryForList("manager.queryAllUserB",userlb);
 	}
 
 	// 获取驾驶员列表信息
@@ -494,6 +503,11 @@ public class ManagerDaoImpl extends SqlMapClientDaoSupport {
 	// 提交采货单主
 	public void updatepurchasingM(MyCondition condition) throws SQLClientInfoException {
 		sqlMapClient.update("manager.updatepurchasingM", condition);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<MyCondition>  findFSourceId(MyCondition condition) throws SQLClientInfoException {
+		return sqlMapClient.queryForList("manager.findFSourceId", condition);
 	}
 
 	// 提交退货单明细
@@ -532,27 +546,27 @@ public class ManagerDaoImpl extends SqlMapClientDaoSupport {
 	}
 
 	// 代发货
-	// 查询所有待发货列表
-	@SuppressWarnings("unchecked")
-	public List<Orders> queryAllOrdersList() throws SQLClientInfoException {
-		return sqlMapClient.queryForList("manager.queryAllOrdersList");
-	}
-
-	// 根据日期查询待发货订单列表
+	// 查询条件查询订单
 	@SuppressWarnings("unchecked")
 	public List<Orders> queryAllOrdersList(String query) throws SQLClientInfoException {
-		return sqlMapClient.queryForList("manager.queryAllOrdersLists", query);
+		return sqlMapClient.queryForList("manager.queryAllOrdersList",query);
 	}
+
+/*	// 查询条件查询订单
+	@SuppressWarnings("unchecked")
+	public List<Orders> queryAllOrdersLists(String query) throws SQLClientInfoException {
+		return sqlMapClient.queryForList("manager.queryAllOrdersLists", query);
+	}*/
 
 	// 查询指定待发货订单
 	@SuppressWarnings("unchecked")
-	public List<Orders> queryAllOrdersList(int FBillID) throws SQLClientInfoException {
+	public List<Orders> queryAllOrdersListss(String FBillID) throws SQLClientInfoException {
 		return sqlMapClient.queryForList("manager.queryAllOrdersListss", FBillID);
 	}
 
 	// 获取进货单位列表信息
 	@SuppressWarnings("unchecked")
-	public List<view_orderdetail> queryAllOrderDetail(int FBillID) throws SQLClientInfoException {
+	public List<view_orderdetail> queryAllOrderDetail(String  FBillID) throws SQLClientInfoException {
 		return sqlMapClient.queryForList("manager.queryAllOrderDetail", FBillID);
 	}
 	// 获取进货单位列表信息
@@ -566,7 +580,7 @@ public class ManagerDaoImpl extends SqlMapClientDaoSupport {
 		sqlMapClient.update("manager.updateDeliver_Goods", deliveryBean);
 	}
 	// 提交发货单
-	public void updateOrders_Status(int FBillID) throws SQLClientInfoException {
+	public void updateOrders_Status(String FBillID) throws SQLClientInfoException {
 		sqlMapClient.update("manager.updateOrders_Status", FBillID);
 	}
 	// 提交发货单
@@ -589,6 +603,16 @@ public class ManagerDaoImpl extends SqlMapClientDaoSupport {
 	@SuppressWarnings("unchecked")
 	public List<PurchasingBean> queryPurchasing( String FId) throws SQLClientInfoException {
 		return sqlMapClient.queryForList("manager.queryPurchasing", FId);
+	}
+	// 获取指定仓库下的商品列表
+	@SuppressWarnings("unchecked")
+	public List<Product> queryInventory( String FId) throws SQLClientInfoException {
+		return sqlMapClient.queryForList("manager.queryInventory", FId);
+	}
+	// //获取目前数据库中的最大派单号
+	@SuppressWarnings("unchecked")
+	public List<PDBean> queryPDBean( String FId) throws SQLClientInfoException {
+		return sqlMapClient.queryForList("manager.queryPDBean", FId);
 	}
 	
 	/**
@@ -649,10 +673,243 @@ public class ManagerDaoImpl extends SqlMapClientDaoSupport {
 		sqlMapClient.update("manager.updateT_Qk_FK", payMainBean);
 		
 	}
+
 	public void addProductInfo(Product product) throws SQLClientInfoException {
 		sqlMapClient.update("manager.addProdInfo", product);
 		
 	}
+	//更新盘点明细表
+	public void updatePDItem(PDItemBean PDItemBean) throws SQLClientInfoException{
+		sqlMapClient.update("manager.updatePDItem", PDItemBean);
+		
+	}
+	//更新盘点主表
+	public void updatePD(PDBean PDBean) throws SQLClientInfoException{
+		sqlMapClient.update("manager.updatePD", PDBean);
+		
+	}
+
+	/**
+	 *  query Evaluate by condition 根据条件查询评价
+	 */
+	public List<EvaluateBean> queryEvaluateListByCond(PageInfo info) {
+		return sqlMapClient.queryForList("manager.queryEvaluateByCond", info);
+	}
+
+
+	/**
+	 *  query Evaluate count by condition 根据条件查询评价总数
+	 */
+	public Integer queryEvaluateCountByCond(PageInfo info) {
+		return (Integer) sqlMapClient.queryForObject("manager.queryCountInEvaluateByCond", info);
+	}
+	
+	/**查询套餐列表
+	 *  
+	 */
+	@SuppressWarnings("unchecked")
+	public List<PackageBean> queryPackageList() {
+		return sqlMapClient.queryForList("manager.queryPackageList");
+	}
+	
+	/**查询套餐列表
+	 *  
+	 */
+	@SuppressWarnings("unchecked")
+	public String queryMaxPackage_id() {
+		return (String) sqlMapClient.queryForObject("manager.queryMaxPackage_id");
+	}
+	/**
+	 *  根据套餐id查询套餐明细
+	 */
+	@SuppressWarnings("unchecked")
+	public List<PackageItem> queryPackageDetail(String id) {
+		return sqlMapClient.queryForList("manager.queryPackageDetail",id);
+	}
+	/**
+	 *  根据套餐id查询套餐明细
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Product> queryProductList() {
+		return sqlMapClient.queryForList("manager.queryProductList");
+	}
+
+
+	/**
+	 * 修改用户
+	 * 
+	 * @param info
+	 * @throws SQLClientInfoException
+	 */
+	public void updatePackageItem(PackageItem info) throws SQLClientInfoException {
+		sqlMapClient.update("manager.updatePackageItem", info);
+	}
+
+	/**
+	 * 修改用户
+	 * 
+	 * @param info
+	 * @throws SQLClientInfoException
+	 */
+	public void updatePackage(PackageBean info) throws SQLClientInfoException {
+		sqlMapClient.update("manager.updatePackage", info);
+	}
+	/**
+	 * 一般费用提交
+	 * 
+	 * @param info
+	 * @throws SQLClientInfoException
+	 */
+	public void updateExpenseOrEarn(ExpenseBean condition) throws SQLClientInfoException {
+		sqlMapClient.update("manager.updateExpenseOrEarn", condition);
+	}
+
+	// 获取商品列表信息
+	@SuppressWarnings("unchecked")
+	public List<PackageItem> queryProductbyId(String  P_Package_id) throws SQLClientInfoException {
+		return sqlMapClient.queryForList("manager.queryProductbyId",P_Package_id);
+	}
+	/**查询套餐列表
+	 *  
+	 */
+	@SuppressWarnings("unchecked")
+	public List<PackageBean> queryPackagebyId(String  P_Package_id) {
+		return sqlMapClient.queryForList("manager.queryPackagebyId",P_Package_id);
+	}
+	public void delItemById(String  P_Package_id) throws SQLClientInfoException {
+		sqlMapClient.update("manager.delItemById",P_Package_id);
+	}
+	public void delPackageById(String  P_Package_id) throws SQLClientInfoException{
+		 sqlMapClient.update("manager.delPackageById",P_Package_id);
+	}
+	
+	/**
+	 *  查询采购单列表
+	 */
+	@SuppressWarnings("unchecked")
+	public List<PurchasingBean> queryPurchaseList(String query) {
+		return sqlMapClient.queryForList("manager.queryPurchaseList",query);
+	}
+	/**
+	 *  查询采购付款单列表
+	 */
+	@SuppressWarnings("unchecked")
+	public List<PayMainBean> queryPayList(String query) {
+		return sqlMapClient.queryForList("manager.queryPayList",query);
+	}
+	/**
+	 *  查询采购付款单列表
+	 */
+	@SuppressWarnings("unchecked")
+	public List<PayMainBean> queryPayListByID(String FId) {
+		return sqlMapClient.queryForList("manager.queryPayListByID",FId);
+	}
+	/**
+	 *  根据采购单id查询采购单
+	 */
+	@SuppressWarnings("unchecked")
+	public List<PurchasingBean> queryPurchaseListByID(String FBillID) {
+		return sqlMapClient.queryForList("manager.queryPurchaseListByID",FBillID);
+	}
+	/**
+	 *  根据采购单id查询采购单
+	 */
+	@SuppressWarnings("unchecked")
+	public List<PurItemBean> purchaseItemDetail(String FBillID) {
+		return sqlMapClient.queryForList("manager.purchaseItemDetail",FBillID);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void updateBillnumberByFClass(String FBillID) {
+		sqlMapClient.update("manager.updateBillnumberByFClass",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public void addOrder(Orders order) {
+		sqlMapClient.update("manager.addOrder",order);
+	}
+	@SuppressWarnings("unchecked")
+	public void addAmount(Orders order) {
+		sqlMapClient.update("manager.addAmount",order);
+	}
+	@SuppressWarnings("unchecked")
+	public void addRebate(Rebate order) {
+		sqlMapClient.update("manager.addRebate",order);
+	}
+	@SuppressWarnings("unchecked")
+	public void updateAccounting(Rebate order) {
+		sqlMapClient.update("manager.updateAccounting",order);
+	}
+	@SuppressWarnings("unchecked")
+	public void updateLevelbyUserID(UserInfo userinfo) {
+		sqlMapClient.update("manager.updateLevelbyUserID",userinfo);
+	}
+	@SuppressWarnings("unchecked")
+	public void addOrderItem(Orders order) {
+		sqlMapClient.update("manager.addOrderItem",order);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public SpdBean findRateByLv(SpdBean FBillID) {
+		return (SpdBean) sqlMapClient.queryForObject("manager.findRateByLv",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public UserInfo findLevelByUserid(String FBillID) {
+		return  (UserInfo) sqlMapClient.queryForObject("manager.findLevelByUserid",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public Rebate queryIfEnough(String FBillID) {
+		return  (Rebate) sqlMapClient.queryForObject("manager.queryIfEnough",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public UserInfo queryUserById(String FBillID) {
+		return  (UserInfo) sqlMapClient.queryForObject("manager.queryUserById",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public Billnumber findBillNumberByFMax(String FClass) {
+		return  (Billnumber) sqlMapClient.queryForObject("manager.findBillNumberByFMax",FClass);
+	}
+	@SuppressWarnings("unchecked")
+	public UserInfo findRecUser1ByUserid(String FBillID) {
+		return  (UserInfo) sqlMapClient.queryForObject("manager.findRecUser1ByUserid",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public UserInfo findRecUser2ByUserid(String FBillID) {
+		return  (UserInfo) sqlMapClient.queryForObject("manager.findRecUser2ByUserid",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public UserInfo findProvinceByUserid(String FBillID) {
+		return  (UserInfo) sqlMapClient.queryForObject("manager.findProvinceByUserid",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public UserInfo findCityByUserid(String FBillID) {
+		return  (UserInfo) sqlMapClient.queryForObject("manager.findCityByUserid",FBillID);
+	}
+	@SuppressWarnings("unchecked")
+	public UserInfo findCountyByUserid(String FBillID) {
+		return  (UserInfo) sqlMapClient.queryForObject("manager.findCountyByUserid",FBillID);
+	}
+	/**
+	 *  根据采购单id查询采购单
+	 */
+	@SuppressWarnings("unchecked")
+	public List<WithdrawBean> queryWithdrawList(String query) {
+		return sqlMapClient.queryForList("manager.queryWithdrawList",query);
+	}
+	public void updateWithdrawStatus(WithdrawBean info) throws SQLClientInfoException {
+		sqlMapClient.update("manager.updateWithdrawStatus", info);
+	}
+	public void ajaxUpdateRefuseReason(WithdrawBean info) throws SQLClientInfoException {
+		sqlMapClient.update("manager.ajaxUpdateRefuseReason", info);
+	}
+	@SuppressWarnings("unchecked")
+	public void updateAccounting2(Rebate order) {
+		sqlMapClient.update("manager.updateAccounting2",order);
+	}
+	@SuppressWarnings("unchecked")
+	public Rebate queryBalance(String FBillID) {
+		return  (Rebate) sqlMapClient.queryForObject("manager.queryBalance",FBillID);
+	}
+
 } 
 
 

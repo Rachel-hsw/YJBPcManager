@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>宁盈物流订单管理系统</title>
+<title>沂健宝后台管理系统</title>
 
 <link href="../css/style.css" rel="stylesheet" type="text/css" />
 <script language="JavaScript" src="../js/jquery.js"></script>
@@ -38,7 +38,7 @@
 
 
 	<div class="logintop">
-		<span>宁盈物流订单管理系统</span>
+		<span>沂健宝后台管理系统</span>
 	</div>
 
 	<div class="loginbody">
@@ -62,7 +62,7 @@
 
 	</div>
 
-	<div class="loginbm">版权所有 2015</div>
+	<div class="loginbm">版权所有 2017</div>
 
 
 </body>

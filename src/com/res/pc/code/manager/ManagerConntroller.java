@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.sql.SQLClientInfoException;
+import java.text.Bidi;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,25 +27,35 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.res.pc.code.customer.bean.Rebate;
 import com.res.pc.code.manager.bean.DeliveryBean;
 import com.res.pc.code.manager.bean.DriverBean;
+import com.res.pc.code.manager.bean.EvaluateBean;
+import com.res.pc.code.manager.bean.ExpenseBean;
 import com.res.pc.code.manager.bean.InitialNavigationsInfo;
 import com.res.pc.code.manager.bean.MyCondition;
 import com.res.pc.code.manager.bean.OperationLog;
 import com.res.pc.code.manager.bean.Orders;
-import com.res.pc.code.manager.bean.PayCondition;
+import com.res.pc.code.manager.bean.PDBean;
+import com.res.pc.code.manager.bean.PDItemBean;
+import com.res.pc.code.manager.bean.PackageBean;
+import com.res.pc.code.manager.bean.PackageItem;
 import com.res.pc.code.manager.bean.PayMainBean;
-import com.res.pc.code.manager.bean.RewardBean;
 import com.res.pc.code.manager.bean.RoleInfo;
+import com.res.pc.code.manager.bean.SpdBean;
+import com.res.pc.code.manager.bean.SpdCondition;
 import com.res.pc.code.manager.bean.SupplierBean;
 import com.res.pc.code.manager.bean.UserInfo;
 import com.res.pc.code.manager.bean.WarehouseBean;
+import com.res.pc.code.manager.bean.WithdrawBean;
 import com.res.pc.code.manager.bean.PriceBean;
 import com.res.pc.code.manager.bean.Product;
 import com.res.pc.code.manager.bean.PurItemBean;
@@ -1065,7 +1077,7 @@ public class ManagerConntroller
 	//Manager/setReward.do
 	
 	/**
-	 * 查询奖励 列表
+	 * 返利设置 列表
 	 * @param request
 	 * @param response
 	 * @return
@@ -1073,18 +1085,17 @@ public class ManagerConntroller
 	@RequestMapping(value = "/setReward")
 	public ModelAndView setReward(HttpServletRequest request,HttpServletResponse response)
 	{
-		ModelAndView view = new ModelAndView("reward");
+		ModelAndView view = new ModelAndView("setting");
 		
 		//调用service
 		try
 		{
 			
-			List<RewardBean> infoList = managerService.queryAllReward();
-			
-			
-			request.setAttribute("infoList", infoList);
-			
-			
+			List<SpdBean> spdBeanList = managerService.queryRebateByType();
+			for (SpdBean spdBean : spdBeanList) {
+				spdBean.setRate(String.valueOf((int)(Double.parseDouble(spdBean.getRate())*100)));
+			}
+			request.setAttribute("spdBeanList", spdBeanList);		
 		} 
 		catch (SQLClientInfoException e)
 		{
@@ -1098,34 +1109,38 @@ public class ManagerConntroller
 	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "/Reward" , method = RequestMethod.POST)
-	public ModelAndView Reward(HttpServletRequest request,HttpServletResponse response)
+	@RequestMapping(value = "/Reward")
+	public ModelAndView Reward(SpdCondition condition,HttpServletRequest request,HttpServletResponse response)
 	{
-		ModelAndView view = new ModelAndView("reward");
-		RewardBean rewardbean=new RewardBean();
-		/**
-		 *  获取用户名和密码
-		 */
-		rewardbean.setId(request.getParameter("id"));
-		rewardbean.setRate(request.getParameter("Rate"));
+		ModelAndView view = new ModelAndView("setting");
+		boolean ifsucesss=false;
 	
 		try
-		{
+		{   List<SpdBean> spdBeanList=condition.getItemsList();   
+			int i=1;
 			//调用service
-			    String result = managerService.updateReward(rewardbean);
+			    for (SpdBean spdBean : spdBeanList) {
+			    	
+			    	spdBean.setId(String.valueOf(i));
+			    	spdBean.setRate(String.valueOf((Double.parseDouble(spdBean.getRate())/100)));
+			    	managerService.updateRebateByTypeAndLv(spdBean);
+			    	i++;
+			    	
+				}
 			
-				List<RewardBean> infoList = managerService.queryAllReward();			
-				request.setAttribute("infoList", infoList);		
+			    
 		} 
 		catch (SQLClientInfoException e)
 		{
 			logger.error("数据库异常",e);
 		}
-		return view;
+		ifsucesss=true;
+		request.setAttribute("ifsucesss", ifsucesss);
+		return setReward(request, response);
 	}
 	
 	/**
-	 * 查询折扣 列表
+	 * 
 	 * @param request
 	 * @param response
 	 * @return
@@ -1234,10 +1249,10 @@ public class ManagerConntroller
 		return view;
 	}
 	
-	
+	/*--------------------------------------------------------------采购---------------------------------------------*/
 	
 	/**
-	 * 采购列表
+	 * 采购界面
 	 * @param request
 	 * @param response
 	 * @return
@@ -1253,7 +1268,7 @@ public class ManagerConntroller
 			
 			List<WarehouseBean> arealist = managerService.queryAllWarehouse();	
 			List<DriverBean> driverlist = managerService.queryAllDriver();//驾驶员
-			List<UserInfo> userlist = managerService.queryAllUserB();//采购员
+			List<UserInfo> userlist = managerService.queryAllUserB("2");//采购员
 			List<Product> productlist = managerService.queryAllProduct();
 			List<SupplierBean> supplierlist = managerService.queryAllSupplier();
 			request.setAttribute("arealist", arealist);
@@ -1282,6 +1297,7 @@ public class ManagerConntroller
 	@RequestMapping(value = "/purchasingUpdates")
 	public ModelAndView purchasingUpdates(MyCondition condition,HttpServletRequest request,HttpServletResponse response){
 		boolean ifsucesss = false;
+		String result="";
 		try{
 			/*if(condition.getItemsList()!=null){
 			List<PurItemBean> itemsList=condition.getItemsList();
@@ -1304,14 +1320,25 @@ public class ManagerConntroller
 			managerService.updateBillnumber(condition);//更新字号表
 			}
 			*/
-			ifsucesss=managerService.updatepurchasingM(condition);//到业务层去处理逻辑
+			List<MyCondition> myCondition=managerService.findFSourceId(condition);
+			if ( myCondition.size()!=0) {
+				//如果能查到该原始订单号
+				ifsucesss=false;
+				result="不允许输入重复的原始单号";
+				
+			}else{
+				result="成功";
+				ifsucesss=managerService.updatepurchasingM(condition);//到业务层去处理逻辑	
+			}
 		} catch (SQLClientInfoException e) {
 	            logger.error("数据库异常",e);
 	           
 	        }  
+		request.setAttribute("result", result);
 		request.setAttribute("ifsucesss", ifsucesss);
 		return purchase1(request, response);
 	}
+	/*-------------------------------------------------------------------------采购退货---------------------------------------------*/
 	/**
 	 * 采购退货列表
 	 * @param request
@@ -1328,7 +1355,7 @@ public class ManagerConntroller
 			
 			List<WarehouseBean> arealist = managerService.queryAllWarehouse();	
 			List<DriverBean> driverlist = managerService.queryAllDriver();
-			List<UserInfo> userlist = managerService.queryAllUserB();
+			List<UserInfo> userlist = managerService.queryAllUserB("2");
 			List<Product> productlist = managerService.queryAllProduct();
 			List<SupplierBean> supplierlist = managerService.queryAllSupplier();
 			request.setAttribute("arealist", arealist);
@@ -1356,7 +1383,15 @@ public class ManagerConntroller
 	 */
 	@RequestMapping(value = "/returnUpdates")
 	public ModelAndView returnUpdates(MyCondition condition,HttpServletRequest request,HttpServletResponse response){
+		boolean ifsucesss = false;
 		try{
+			List<MyCondition> myCondition=managerService.findFSourceId(condition);
+			if ( myCondition.size()!=0) {
+				//如果能查到该原始订单号
+				ifsucesss=false;
+				String result="不允许输入重复的原始单号";
+				request.setAttribute("result", result);
+			}else{
 			if(condition.getItemsList()!=null){
 			List<PurItemBean> itemsList=condition.getItemsList();
 			for (PurItemBean purItemBean : itemsList) {
@@ -1379,190 +1414,19 @@ public class ManagerConntroller
 			managerService.updateCfg(condition); //更新供应商资金变动表
 			managerService.updateBillnumber(condition); //更新字号表
 			
-			}
-			
+			}	ifsucesss=true;
+			}	
 		} catch (SQLClientInfoException e) {
 	            logger.error("数据库异常",e);
 	           
 	        }  
-		
+		request.setAttribute("ifsucesss", ifsucesss);
 		return returnpurchase(request, response);
 	}
-	
-	
-	/**
-	 * 订单发货列表界面
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@RequestMapping(value = "/delivery")
-	public ModelAndView delivery(HttpServletRequest request,HttpServletResponse response)
-	{
-		System.out.println("123");
-		ModelAndView view = new ModelAndView("delivery");
-		try
-		{   
-			String begintime=request.getParameter("begintime") ;
-		    String endtime=request.getParameter("endtime") ;
-		 /*   Map<String, String> map=new HashMap<String,String>();
-		    map.put("begintime","begintime");
-		    map.put("endtime","endtime");	*/
-		    String query = "(FS_Date >= '"+begintime+"' and FS_Date <= '"+endtime+"')";
-		    List<Orders> orderlist=null;
-		    if(begintime!=null&&!"".equals(begintime)){
-			orderlist = managerService.queryAllOrdersList(query);	
-		    }else{
-		    orderlist = managerService.queryAllOrdersList();	
-		    }
-		   
-		
-			request.setAttribute("orderlist", orderlist);
-			request.setAttribute("begintime", begintime);
-			request.setAttribute("endtime", endtime);
-		
-			
-			
+	/*-------------------------------------------------------------------------采购应付---------------------------------------------*/
 
-		} 
-		catch (SQLClientInfoException e)
-		{
-			logger.error("数据库异常",e);
-		}
-		return view;
-	}
-
-	
 	/**
-	 * 发货主界面
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@RequestMapping(value = "/deliveryprint")
-	public ModelAndView deliveryprint(HttpServletRequest request,HttpServletResponse response)
-	{
-		
-		ModelAndView view = new ModelAndView("deliveryprint");
-
-		try
-		{
-			//订单号
-		    int FBillID=Integer.valueOf(request.getParameter("FBillID")) ;
-		   
-			List<view_orderdetail> orderdetail = managerService.queryAllOrderDetail(FBillID);
-			List<Orders>  orderlist = managerService.queryAllOrdersList(FBillID);	
-			List<WarehouseBean> arealist = managerService.queryAllWarehouse();	
-			request.setAttribute("arealist", arealist);			
-			request.setAttribute("orderdetail", orderdetail);
-			request.setAttribute("orderlist", orderlist);
-			
-
-		} 
-		catch (SQLClientInfoException e)
-		{
-			logger.error("数据库异常",e);
-		}
-		return view;
-	}
-	
-	/**
-	 * 提交发货单
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws UnsupportedEncodingException 
-	 */
-
-	@RequestMapping(value = "/deliverysumbit")
-	public ModelAndView deliverysumbit(DeliveryBean deliveryBean,HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException{
-		try{
-			int FBillID=Integer.valueOf(deliveryBean.getFBillID()) ;
-			managerService.updateDeliver_Goods(deliveryBean); //添加发货表信息
-			managerService.updateOrders_Status(FBillID);//更新订单主表
-			
-			String FId=deliveryBean.getFId();
-			if(deliveryBean.getItemsList()!=null){
-				List<PurItemBean> itemsList=deliveryBean.getItemsList();
-				for (PurItemBean purItemBean : itemsList) {
-					//商品名称,规格            ,单位        ,单价            ,数量        ,重量,金额          ,备注
-					//FP_Id ,FP_Price,FP_Num,FP_ZL,FP_Money,Remark	
-					purItemBean.setFW_Id(FId);
-					//仓库Id FW_Id	商品Id FP_Id
-						
-          if (!"".equals(purItemBean.getFP_Id())&&purItemBean.getFP_Id()!=null) {
-        	  managerService.updateStock2(purItemBean); //更新库存表
-			
-		}
-					
-			}}
-		} catch (SQLClientInfoException e) {
-	            logger.error("数据库异常",e);
-	           
-	        }  
-		
-		return delivery(request, response);
-	}
-	/**
-	 *采购应付
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@RequestMapping(value = "/orderDetail")
-	public ModelAndView orderDetail(HttpServletRequest request,HttpServletResponse response)
-	{
-		
-		ModelAndView view = new ModelAndView("orderDetail");
-		try
-		{
-			//订单号
-		    int FBillID=Integer.valueOf(request.getParameter("FBillID")) ;
-		   
-			List<view_orderdetail> orderdetail = managerService.queryAllOrderDetail(FBillID);
-			
-			request.setAttribute("orderdetail", orderdetail);
-			
-			
-
-		} 
-		catch (SQLClientInfoException e)
-		{
-			logger.error("数据库异常",e);
-		}
-		return view;
-	}
-	/**
-	 *采购应付
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@RequestMapping(value = "/purchaseDetail")
-	public ModelAndView purchaseDetail(HttpServletRequest request,HttpServletResponse response)
-	{
-		
-		ModelAndView view = new ModelAndView("orderDetail");
-		try
-		{
-			//订单号
-			int FBillID=Integer.valueOf(request.getParameter("FBillID")) ;
-			
-			List<view_orderdetail> orderdetail = managerService.queryPurchaseDetail(FBillID);
-			
-			request.setAttribute("orderdetail", orderdetail);
-			
-			
-			
-		} 
-		catch (SQLClientInfoException e)
-		{
-			logger.error("数据库异常",e);
-		}
-		return view;
-	}
-	/**
-	 *采购应付
+	 *指定供应商的采购应付列表
 	 * @param request
 	 * @param response
 	 * @return
@@ -1598,43 +1462,9 @@ public class ManagerConntroller
 		}
 		return view;
 	}
-	/**
-	 *会员付款
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@RequestMapping(value = "/customerpay")
-	public ModelAndView customerpay(HttpServletRequest request,HttpServletResponse response)
-	{
-		
-		ModelAndView view = new ModelAndView("customerpay");
-		try
-		{ 
-			String  FName=request.getParameter("FName") ;
-			List<SupplierBean> supplierlist = managerService.queryAllSupplier();
-			request.setAttribute("supplierlist", supplierlist);
-			//订单号
-			if(null!=request.getParameter("FId")&&!"".equals(request.getParameter("FId"))){
-				 String  FId=request.getParameter("FId") ;
-				 List<PurchasingBean> purchasinglist = managerService.queryPurchasing(FId);
-				 request.setAttribute("purchasinglist", purchasinglist);
-			}
-		   
-			request.setAttribute("FName", FName);
-			
-			
-			
 
-		} 
-		catch (SQLClientInfoException e)
-		{
-			logger.error("数据库异常",e);
-		}
-		return view;
-	}
 	/**
-	 *采购应付
+	 *采购应付提交
 	 * @param request
 	 * @param response
 	 * @return
@@ -1647,12 +1477,18 @@ public class ManagerConntroller
 		try
 		{ 
 			 String[] infoArray=request.getParameterValues("delId");
+			  StringBuffer sb = new StringBuffer();
 			 for(int i=0;i<infoArray.length;i++){
-				 managerService.updatePurchase_Status(Integer.valueOf(infoArray[i])); //更新采购状态表	
+				 managerService.updatePurchase_Status(Integer.valueOf(infoArray[i])); //更新采购主表订单状态	
 				 managerService.updateAmountPay(Integer.valueOf(infoArray[i])); //更新采购金额表
 				
 				// 供应商表里的Fending_balance字段为正表示公司欠供应商，为负供应商欠公司
+				 sb.append(infoArray[i]);
+		            if ((i + 1) != infoArray.length) {
+		                sb.append(",");
+		            }
 				}
+			 payMainBean.setCGID(sb.toString());
 			 managerService.updateT_Qk_FK(payMainBean); //公司资金账户变动表（供应商付款表）	
 			 managerService.updateSupplier1(payMainBean); //更新供应商表 
 
@@ -1663,7 +1499,223 @@ public class ManagerConntroller
 		}
 		return view;
 	}
+	/*------------------------------------------------------------------------销售订单发货---------------------------------------------*/
+	/**
+	 *根据采购单ID查询查看指定ID待发货明细信息 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/purchaseDetail")
+	public ModelAndView purchaseDetail(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("orderDetail");
+		try
+		{
+			//订单号
+			int FBillID=Integer.valueOf(request.getParameter("FBillID")) ;
+			
+			List<view_orderdetail> orderdetail = managerService.queryPurchaseDetail(FBillID);
+			
+			request.setAttribute("orderdetail", orderdetail);
+			
+			
+			
+		} 
+		catch (SQLClientInfoException e)
+		{
+			logger.error("数据库异常",e);
+		}
+		return view;
+	}
+	/**
+	 * 订单发货列表界面
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/delivery")
+	public ModelAndView delivery(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("delivery");
+		try
+		{   
+			String begintime=request.getParameter("begintime") ;
+		    String endtime=request.getParameter("endtime") ;
+		 /*   Map<String, String> map=new HashMap<String,String>();
+		    map.put("begintime","begintime");
+		    map.put("endtime","endtime");	*/
+		   
+		    List<Orders> orderlist=null;
+		    if(begintime!=null&&!"".equals(begintime)){
+		    String query = "(T_Qk_Orders.Fstatus='2' and FS_Date >= '"+begintime+"' and FS_Date <= '"+endtime+"')";
+			orderlist = managerService.queryAllOrdersList(query);	
+		    }else{
+		    String query = "(T_Qk_Orders.Fstatus='2')";
+		    orderlist = managerService.queryAllOrdersList(query);	
+		    }
+			request.setAttribute("orderlist", orderlist);
+			request.setAttribute("begintime", begintime);
+			request.setAttribute("endtime", endtime);
+		
+			
+			
+
+		} 
+		catch (SQLClientInfoException e)
+		{
+			logger.error("数据库异常",e);
+		}
+		return view;
+	}
+
 	
+	/**
+	 * 发货主界面
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/deliveryprint")
+	public ModelAndView deliveryprint(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("deliveryprint");
+
+		try
+		{
+			//订单号
+		    String FBillID=request.getParameter("FBillID") ;
+		   
+			List<view_orderdetail> orderdetail = managerService.queryAllOrderDetail(FBillID);
+			List<Orders>  orderlist = managerService.queryAllOrdersListss(FBillID);	
+			List<WarehouseBean> arealist = managerService.queryAllWarehouse();	
+			request.setAttribute("arealist", arealist);			
+			request.setAttribute("orderdetail", orderdetail);
+			request.setAttribute("orderlist", orderlist);
+			
+
+		} 
+		catch (SQLClientInfoException e)
+		{
+			logger.error("数据库异常",e);
+		}
+		return view;
+	}
+	
+	/**
+	 * 提交发货单
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws UnsupportedEncodingException 
+	 */
+
+	@RequestMapping(value = "/deliverysumbit")
+	public ModelAndView deliverysumbit(DeliveryBean deliveryBean,HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException{
+		try{
+			String  FBillID=deliveryBean.getFBillID() ;
+			managerService.updateDeliver_Goods(deliveryBean); //添加发货表信息
+			managerService.updateOrders_Status(FBillID);//更新订单主表
+			
+			String FId=deliveryBean.getFId();
+			if(deliveryBean.getItemsList()!=null){
+				List<PurItemBean> itemsList=deliveryBean.getItemsList();
+				for (PurItemBean purItemBean : itemsList) {
+					//商品名称,规格            ,单位        ,单价            ,数量        ,重量,金额          ,备注
+					//FP_Id ,FP_Price,FP_Num,FP_ZL,FP_Money,Remark	
+					purItemBean.setFW_Id(FId);
+					//仓库Id FW_Id	商品Id FP_Id
+						
+          if (!"".equals(purItemBean.getFP_Id())&&purItemBean.getFP_Id()!=null) {
+        	  managerService.updateStock2(purItemBean); //更新库存表
+			
+		}
+					
+			}}
+		} catch (SQLClientInfoException e) {
+	            logger.error("数据库异常",e);
+	           
+	        }  
+		
+		return delivery(request, response);
+	}
+	/**
+	 *根据销售订单ID查询发货明细
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/orderDetail")
+	public ModelAndView orderDetail(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("orderDetail");
+		try
+		{
+			//订单号
+		   String FBillID=request.getParameter("FBillID") ;
+		   
+			List<view_orderdetail> orderdetail = managerService.queryAllOrderDetail(FBillID);
+			
+			request.setAttribute("orderdetail", orderdetail);
+			
+			
+
+		} 
+		catch (SQLClientInfoException e)
+		{
+			logger.error("数据库异常",e);
+		}
+		return view;
+	}
+	/*-------------------------------------------------------------------------会员升级付款---------------------------------------------*/
+	/**
+	 *会员付款
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/customerpay")
+	public ModelAndView customerpay(HttpServletRequest request,HttpServletResponse response)
+	{
+		ModelAndView view = new ModelAndView("finance/custmercost");
+		return view;
+	}
+	/**
+	 *会员付款提交
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/custmercostSubmit")
+	public ModelAndView custmercostSubmit(Orders condition,HttpServletRequest request,HttpServletResponse response)
+	{
+		ModelAndView view = new ModelAndView("finance/custmercost");
+		String result = "";
+		boolean ifsucesss=false;
+	
+		try {
+			
+		  
+			if("".equals(managerService.queryUserById(condition.getUser_id()))||null==(managerService.queryUserById(condition.getUser_id()))){
+				result="此用户没有注册过";
+			}else{
+			result=managerService.updateCustmercost(condition);
+			ifsucesss=true;
+			}
+			request.setAttribute("result", result);	
+			request.setAttribute("ifsucesss", ifsucesss);	
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();//custmercost
+		}
+		return view;
+		
+	}
+	/*------------------------------------------------------------------------供应商增删改查---------------------------------------------*/	
 	@RequestMapping(value = "/SupplierList" )
 	public String SupplierList(QuerySupplierVo vo,HttpServletRequest request , HttpServletResponse response)
 	{
@@ -1776,7 +1828,7 @@ public class ManagerConntroller
 		
 		return SupplierList(vo,request, response);
 	}
-	
+	/*-------------------------------------------------------------------------商品增删改查---------------------------------------------*/	
 	@RequestMapping(value = "/prodList" )
 	public String prodList(QueryProdVo vo,HttpServletRequest request , HttpServletResponse response)
 	{
@@ -1875,6 +1927,11 @@ public class ManagerConntroller
  			PicUtils picu = new PicUtils(upload);
  			picu.resizeByHeight(140);
  			}
+ 			if (prod.getDivName().equals("护肤型")) {
+				prod.setDivID("H");
+			}else 	if (prod.getDivName().equals("技能型")) {
+				prod.setDivID("J");
+			}
 			if("update".equals(method)){
 			managerService.updateProductInfo(prod);
 			}else{
@@ -1889,6 +1946,930 @@ public class ManagerConntroller
 		
 		return prodList(vo,request, response);
 	}
+	/*------------------------------------------------------------------------库存管理，商品盘库---------------------------------------------*/
+	/**
+	 * 商品盘库
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/InventoryWS")
+	public ModelAndView InventoryWS(HttpServletRequest request,HttpServletResponse response)
+	{
+		ModelAndView view = new ModelAndView("InventoryWS");
+		try
+		{   String  FName=request.getParameter("FName") ;//仓库名称
+			String  FW_Id=request.getParameter("FW_Id") ;//仓库ID
+			List<WarehouseBean> arealist = managerService.queryAllWarehouse();	//查询仓库列表
+			request.setAttribute("arealist", arealist);
+			// 获取指定仓库下的商品列表
+			if(null!=request.getParameter("FW_Id")&&!"".equals(request.getParameter("FW_Id"))){
+				
+				
+				 List<Product> Inventory = managerService.queryInventory(FW_Id);	
+					
+					request.setAttribute("Inventory", Inventory);
+			}
+			
+			  Date currentTime = new Date();
+			  SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd HHmmss");
+			  String dateString = formatter.format(currentTime);
+			  //得到PD20171109
+			  String w="PD"+dateString.substring(0, 8);
+			  //获取目前数据库中的最大派单号，从数据库获取回来的单号格式为PD20171109001
+			  List<PDBean> PDBean = managerService.queryPDBean(w);	
+			  if (!PDBean.get(0).getFPDDH().equals("0")) {
+				  //截取后三位001
+			  String dh=PDBean.get(0).getFPDDH().substring(10,13);
+			  //转化为int类型，1。然后加1，得2
+			  int num=Integer.valueOf(dh)+1;
+			  //再转化为002，然后加上PD20171109---%03d，一种左边补0 的等宽格式,比如数字12,%03d出来就是: 012
+			  String PDDH =w+String.format("%03d", num);
+              
+			  request.setAttribute("PDDH", PDDH);// 
+			  }else{
+				  request.setAttribute("PDDH", w+"001");	  
+			  }
+			request.setAttribute("FName", FName);//回显
+			request.setAttribute("FW_Id", FW_Id);
+			List<UserInfo> userlist = managerService.queryAllUserB("1,2");//会员
+			request.setAttribute("userlist", userlist);
+			
+			
+			
+
+		} 
+		catch (SQLClientInfoException e)
+		{
+			logger.error("数据库异常",e);
+		}
+		return view;
+	}
+	/**
+	 * 
+	 * 提交盘点仓库信息
+	 * @param condition
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/InventoryWSUpdates")
+	public ModelAndView InventoryWSUpdates(PDBean condition,HttpServletRequest request,HttpServletResponse response){
+		boolean ifsucesss = false;
+		try{
+			
+			if(condition.getItemsList()!=null){
+				List<PDItemBean> itemsList=condition.getItemsList();
+				for (PDItemBean PDItemBean : itemsList) {
+					
+					if(PDItemBean.getFP_Id()!=null&&!"".equals(PDItemBean.getFP_Id())){
+						//更新盘点明细表
+						PDItemBean.setFPDDH(condition.getFPDDH());
+						managerService.updatePDItem(PDItemBean); 
+						
+						}
+					
+				}
+				//更新盘点主表
+				managerService.updatePD(condition);
+				}
+			ifsucesss=true;//到业务层去处理逻辑
+		} catch (SQLClientInfoException e) {
+	            logger.error("数据库异常",e);
+	           
+	        }  
+		request.setAttribute("ifsucesss", ifsucesss);
+		return InventoryWS(request, response);
+	}	
+	/*------------------------------------------------------------------------辅助功能，评价---------------------------------------------*/
+	 /**
+     * 根据条件查询评价列表并返回到evaluate页面
+     */
+    @RequestMapping(value = "/queryEvaluateListByCond/{reqStr}/{page}", method = RequestMethod.GET)
+    public ModelAndView queryEvaluateListByCond(HttpServletRequest request, HttpServletResponse response, @PathVariable("reqStr") String reqStr, @PathVariable("page") int page) {
+        ModelAndView view = new ModelAndView("evaluate");
+        PageInfo info = new PageInfo();
+        info.setPage(page);//页数
+        info.setOrder("FID desc");
+     
+        if("null".equals(reqStr)) {
+            reqStr = "";
+        }
+        info.setquery(reqStr);
+        try {
+            //	query list
+            List<EvaluateBean> evaluateBeanList = managerService.queryEvaluateListByCond(info);
+            //	query count
+            int count = managerService.queryCountInEvaluateByCond(info);
+            request.setAttribute("count", count);        //count总条数
+            request.setAttribute("page", page);    //当前页
+            Integer endPage = (count / Constants.Page_Num) + 1;
+            request.setAttribute("userEndPage", endPage);        //最终页
+            request.setAttribute("prePage", page == 1 ? 1 : page - 1);        //上一页
+            request.setAttribute("nextPage", page == endPage ? endPage : page + 1);        //下一页
+            request.setAttribute("evaluateList", evaluateBeanList);
+            if ("".equals(reqStr)) {
+                reqStr = "null";
+            }
+            request.setAttribute("reqStr", reqStr);
+        } catch (Exception e) {
+            logger.error("数据库异常", e);
+        }
+
+        return view;
+    }
+    /*-------------------------------------------------------------------------产品组装---------------------------------------------*/
+    /**
+	 *查询套餐列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/productpackaging")
+	public ModelAndView productpackaging(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("packaging/packageList");
+		
+		
+			List<PackageBean> packageList = managerService.queryPackageList();
+			request.setAttribute("packageList", packageList);
+
+		return view;
+	}
+	/**
+	 *根据套餐id查询套餐明细
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/packageDetail")
+	public ModelAndView packageDetail(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("packaging/packageDetail");
+		
+		String  P_Package_id=request.getParameter("P_Package_id") ;//仓库名称
+		List<PackageItem> packageDetail = managerService.queryPackageDetail(P_Package_id);
+		request.setAttribute("packageDetail", packageDetail);
+		
+		return view;
+	}
 	
+	/**
+	 *增加套餐界面
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/packageAdd")
+	public ModelAndView packageAdd(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("packaging/packageAdd");
+		try {
+		
+		List<Product> productList = managerService.queryAllProduct();
+		
+		request.setAttribute("productList", productList);
+    
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return view;
+	}
+	
+	/**
+	 *增加套餐界面提交
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/packageAddSubmit")
+	public ModelAndView packageAddSubmit(PackageBean condition,HttpServletRequest request,HttpServletResponse response)
+	{
+		boolean ifsucesss = false;
+	
+		try {
+		   
+			ifsucesss=managerService.updatePackage(condition);
+				
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return productpackaging(request, response);
+	}
+	/**
+	 *修改套餐界面
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/queryProductbyId")
+	public ModelAndView queryProductbyId(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("packaging/packageAdd2");
+		try {
+		String  P_Package_id=request.getParameter("P_Package_id") ;//套餐名称
+		List<PackageItem> productList = managerService.queryProductbyId(P_Package_id);
+		
+		request.setAttribute("productList", productList);
+		
+		List<PackageBean> packageList = managerService.queryPackagebyId(P_Package_id);
+		request.setAttribute("packageList", packageList);
+		
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return view;
+	}
+
+	/**
+	 *修改套餐界面提交
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/packageChangeSubmit")
+	public ModelAndView packageChangeSubmit(PackageBean condition,HttpServletRequest request,HttpServletResponse response)
+	{
+		boolean ifsucesss = false;
+	
+		try {
+		   
+			ifsucesss=managerService.updatePackage2(condition);
+				
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return productpackaging(request, response);
+	}
+	
+	  /*-------------------------------------------------------------------------财务管理---------------------------------------------*/
+
+	/**
+	 *销售退货
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/salesreturn")
+	public ModelAndView salesreturn(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("packaging/packageAdd2");
+		
+		return view;
+	}
+	/**
+	 *资产负债表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/balancesheet")
+	public ModelAndView balancesheet(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("packaging/packageAdd2");
+		
+		return view;
+	}
+	/**
+	 *综合查询
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/allquery")
+	public ModelAndView allquery(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("packaging/packageAdd2");
+		
+		return view;
+	}
+	
+	
+	/**
+	 *一般费用
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/generalexpense")
+	public ModelAndView generalexpense(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("finance/generalexpense");
+		
+		return view;
+	}
+	/**
+	 *其他收入
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/otherearning")
+	public ModelAndView otherearning(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("finance/otherearning");
+		
+		return view;
+	}
+	/**
+	 *一般费用提交
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/generalSubmit")
+	public ModelAndView generalSubmit(ExpenseBean condition,HttpServletRequest request,HttpServletResponse response)
+	{
+		boolean ifsucesss = false;
+	
+		try {
+			condition.setFDefault("0");
+			ifsucesss=managerService.updateExpenseOrEarn(condition);
+				
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		request.setAttribute("ifsucesss", ifsucesss);
+		return generalexpense(request, response);
+	}
+	/**
+	 *其他收入提交
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/otherearningSubmit")
+	public ModelAndView otherearningSubmit(ExpenseBean condition,HttpServletRequest request,HttpServletResponse response)
+	{
+		boolean ifsucesss = false;
+		
+		try {
+			condition.setFDefault("1");
+			ifsucesss=managerService.updateExpenseOrEarn(condition);
+			
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		request.setAttribute("ifsucesss", ifsucesss);
+		return otherearning(request, response);
+	}
+	  /*------------------------------------------------------------------------综合查询---------------------------------------------*/
+	/**
+	 *采购列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/purchaseList")
+	public ModelAndView purchaseList(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("search/purchaseList");
+		try{
+			String begintime=request.getParameter("begintime") ;
+		    String endtime=request.getParameter("endtime") ;
+		    List<PurchasingBean> mianList=null;
+		    if(begintime!=null&&!"".equals(begintime)){
+		    String query = "(1=1 and FS_Date >= '"+begintime+"' and FS_Date <= '"+endtime+"')";
+		    mianList = managerService.queryPurchaseList(query);
+		    }else{
+		    String query = "(1=1)";
+		    mianList = managerService.queryPurchaseList(query);	
+		    }
+		
+	for (PurchasingBean purchasingBean : mianList) {
+		if (purchasingBean.getFstatus()==1) {
+			purchasingBean.setFstatusText("采购成功，待付款");
+			
+		}else 	if (purchasingBean.getFstatus()==2) {
+			purchasingBean.setFstatusText("采购付款成功");
+			
+		}else 	if (purchasingBean.getFstatus()==4) {
+			purchasingBean.setFstatusText("采购退货，待付款");
+			
+		}else 	if (purchasingBean.getFstatus()==5) {
+			purchasingBean.setFstatusText("退货付款成功");
+			
+		}
+		
+		
+	}		
+		
+		request.setAttribute("mianList", mianList);
+	} catch (SQLClientInfoException e) {
+        logger.error("数据库异常",e);
+       
+    }  
+		return view;
+	}
+	/**
+	 *采购明细
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/purchaseListDetail")
+	public ModelAndView purchaseListDetail(HttpServletRequest request,HttpServletResponse response)
+	{
+		ModelAndView view = new ModelAndView("search/purchaseDetail");
+		try{
+		String FBillID=request.getParameter("FBillID");
+		int Fstatus=Integer.valueOf(request.getParameter("Fstatus"));
+		List<PurchasingBean> mianList = managerService.queryPurchaseListByID(FBillID);//查询指定ID的采购主表信息
+	    request.setAttribute("mianList", mianList);
+		List<PurItemBean> itemsList = managerService.purchaseItemDetail(FBillID);//查询指定ID的采购明细表信息
+	    request.setAttribute("itemsList", itemsList);
+	    request.setAttribute("Fstatus", Fstatus);
+	} catch (SQLClientInfoException e) {
+        logger.error("数据库异常",e);
+       
+    }  
+		return view;
+	}
+	/**
+	 *采购付款单列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/purchasePay")
+	public ModelAndView purchaseListReturn(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("search/payList");
+		try{
+		//查询采购付款单列表
+			String begintime=request.getParameter("begintime") ;
+		    String endtime=request.getParameter("endtime") ;
+		    List<PayMainBean> mianList=null;
+		    if(begintime!=null&&!"".equals(begintime)){
+		    String query = "( 1=1 and FS_Date >= '"+begintime+"' and FS_Date <= '"+endtime+"')";
+		    mianList = managerService.queryPayList(query);
+		    }else{
+		    String query = "( 1=1)";
+		    mianList = managerService.queryPayList(query);
+		    }
+		
+		request.setAttribute("mianList", mianList);
+		} catch (SQLClientInfoException e) {
+	        logger.error("数据库异常",e);
+	       
+	    }  
+		return view;
+	}
+	/**
+	 *采购付款单列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/payListDetail")
+	public ModelAndView payListDetail(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("search/payListDetail");
+		try{
+		String FId=request.getParameter("FId");
+		String CGID=request.getParameter("CGID");
+		List<PurchasingBean> mianList = managerService.queryPurchaseListByID(CGID);//查询指定一系列ID的采购主表信息
+	    request.setAttribute("mianList", mianList);
+		 List<PayMainBean> payList = managerService.queryPayListByID(FId);//查询指定ID的付款表信息
+		 request.setAttribute("payList", payList);
+		
+
+	} catch (SQLClientInfoException e) {
+        logger.error("数据库异常",e);
+       
+    }  
+		return view;
+	}
+	
+	/**
+	 *销售单列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/deliveryList")
+	public ModelAndView deliveryList(HttpServletRequest request,HttpServletResponse response)
+	{
+
+		ModelAndView view = new ModelAndView("search/delivery");
+		try
+		{   
+
+			String begintime=request.getParameter("begintime") ;
+		    String endtime=request.getParameter("endtime") ;
+		    String username=request.getParameter("username") ;
+		    if (username==null) {
+		    	username="";
+			}
+		    List<Orders> orderlist=null;
+		    if(begintime!=null&&!"".equals(begintime)){
+		    	String query="";
+		    	 query = "(1=1 and FS_Date >= '"+begintime+"' and FS_Date <"+"(select dateadd(dd,1,'"+endtime+"')))";
+		    	  if (!"".equals(username)){
+		    		  if (query.length() > 2)
+							query += " and "; 
+		    		  query += " FSname like '%" + username + "%'";
+		    	  }
+		    	// 根据日期查询待发货订单列表
+			orderlist = managerService.queryAllOrdersList(query);	
+			
+		    }else{
+		    	String query="";
+		    	  if (!"".equals(username)){
+		    		   query = "(1=1 and FSname  like '%"+username+"%')";
+		    	  }
+		    	   query="(1=1)";
+		  
+		 // 查询所有待发货列表
+		    orderlist = managerService.queryAllOrdersList(query);	
+		    }
+		    for (Orders orders : orderlist) {
+		    	//2018-01-11 19:29:54.107 截取为2018-01-11 19:29:54
+		    	if (!"".equals(orders.getFS_Date())) {
+		    		String FS_Date=orders.getFS_Date();
+		    		FS_Date=FS_Date.substring(0,19);
+		    		  System.out.println("...");
+		       		orders.setFS_Date(FS_Date);  			        
+				}
+		    	if (null==orders.getFstatus()) {
+		    		orders.setFstatus("6");
+				}
+		    	    if (orders.getFstatus().equals("0")) {
+					orders.setFstatus("订单已取消");
+					
+				    }else  if (orders.getFstatus().equals("1")) {
+						orders.setFstatus("下单成功，待付款");
+						
+					}else 	if (orders.getFstatus().equals("2")) {
+						orders.setFstatus("付款成功，待发货");
+						
+					}else 	if (orders.getFstatus().equals("3")) {
+						orders.setFstatus("发货成功，待签收");
+						
+					}else 	if (orders.getFstatus().equals("4")) {
+						orders.setFstatus("签收成功，待评价");
+						
+					}else 	if (orders.getFstatus().equals("5")) {
+						orders.setFstatus("已完成");
+						
+					}else 	if (orders.getFstatus().equals("6")) {
+						orders.setFstatus("此订单没有状态");
+						
+					}
+			}
+			request.setAttribute("orderlist", orderlist);
+			
+			request.setAttribute("begintime", begintime);
+			request.setAttribute("endtime", endtime);
+			request.setAttribute("username", username);
+		
+			
+			
+
+		} 
+		catch (SQLClientInfoException e)
+		{
+			logger.error("数据库异常",e);
+		}
+		return view;
+	}
+	/**
+	 *销售退货列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/deliveryReturnList")
+	public ModelAndView deliveryReturnList(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = new ModelAndView("search/deliveryReturnList");
+		
+		return view;
+	}
+
+	@ResponseBody 
+	@RequestMapping(value = "/queryUpdate")
+	public List<String> queryUpdate(HttpServletRequest request,HttpServletResponse response)
+	{
+		List<String> list=new ArrayList<String>(); 
+	try{ 
+		String User_id=request.getParameter("User_id");
+	    String Fje=request.getParameter("Fje");
+		UserInfo userInfo =managerService.findLevelByUserid(User_id);//0,0 U_Llevel,Fproxy 
+		Orders orders=new Orders();
+		orders.setUser_id(User_id);
+		orders.setFje(Fje);
+		String hh=managerService.queryshengjiRebate(orders,"1");
+		hh=hh.replace("null", "没有");
+		 SpdBean spdBean=new SpdBean();
+		    //第一次购买本人折扣
+		    spdBean.setFtype("1");
+		    spdBean.setLv("1");
+		    SpdBean zk =managerService.findRateByLv(spdBean);
+		    //复销本人折扣
+		    spdBean.setFtype("2");
+		    spdBean.setLv("1");
+		    SpdBean overzk =managerService.findRateByLv(spdBean);
+		    String result="";
+		    String panDuan="";
+		    if (Fje.equals("9800")&&userInfo.getFproxy().equals("0")) {
+		    	if (userInfo.getU_Llevel().equals("0")) {
+		    		//普通会员
+		    		    panDuan="2";//弹出确认框
+	    			    result="您目前为普通会员，确定升级为高级会员吗？<br>"+hh;
+						list.add(panDuan);
+						list.add(result);
+				}else if (userInfo.getU_Llevel().equals("1")) {//高级会员
+					    panDuan="1";//弹出提醒框
+	    			    result="您目前已经为高级会员，你可以选择付款19800，升级为钻石会员。";
+						list.add(panDuan);
+						list.add(result);
+			
+				}else if(userInfo.getU_Llevel().equals("2")){//钻石会员
+					    panDuan="1";//弹出提醒框
+	    			    result="您目前已经钻石会员。";
+						list.add(panDuan);
+						list.add(result);
+				}else{
+					result="有事情发生了";
+					panDuan="1";
+					list.add(panDuan);
+					list.add(result);
+				}
+			}else if (Fje.equals("19800")&&userInfo.getFproxy().equals("0")) {
+				if (userInfo.getU_Llevel().equals("0")) {
+		    		//普通会员
+					   panDuan="2";//弹出确认框
+	    			    result="您目前为普通会员，确定升级为钻石会员吗？<br>"+hh;
+						list.add(panDuan);
+						list.add(result);
+				}else if (userInfo.getU_Llevel().equals("1")) {//高级会员
+					   panDuan="2";//弹出确认框
+	    			    result="您目前为高级会员，确定升级为钻石会员吗?<br>"+hh;
+						list.add(panDuan);
+						list.add(result);
+				
+				}else if (userInfo.getU_Llevel().equals("2")) {//加盟店
+					panDuan="1";//弹出提醒框
+    			    result="您目前已经钻石会员。";
+					list.add(panDuan);
+					list.add(result);
+				}else{
+					result="有事情发生了";
+					panDuan="1";
+					list.add(panDuan);
+					list.add(result);
+				}
+			}else if (!userInfo.getFproxy().equals("0")) {
+				//是代理
+				panDuan="1";//弹出提醒框
+			    result="您已经是代理，不需要升级";
+				list.add(panDuan);
+				list.add(result);
+				
+			}
+		   
+		 
+	} catch (SQLClientInfoException e) {
+        logger.error("数据库异常",e);
+       
+    }  
+		return list;
+		
+		
+	}
+	
+	/**
+	 * 查询指定用户的电子币余量是否足以支付
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@ResponseBody 
+	@RequestMapping(value = "/queryIfEnough")
+	public List<String> queryIfEnough(HttpServletRequest request,HttpServletResponse response)
+	{
+		List<String> list=new ArrayList<String>(); 
+	try{ 
+	    String result="";
+		String panDuan="";
+		String User_id=request.getParameter("User_id");
+	    String Fje=request.getParameter("Fje");
+		 Rebate rebate=managerService.queryIfEnough(User_id);
+		 if (rebate==null) {
+				panDuan="1";//弹出提醒框
+			    result="该用户不存在";
+				list.add(panDuan);
+				list.add(result);
+		}else{
+		 BigDecimal Fe_voucheS=new BigDecimal(rebate.getFe_vouche());
+		 BigDecimal Fe_voucheF=new BigDecimal(Fje);
+		 if (Fe_voucheS.compareTo(Fe_voucheF)<0) {
+				panDuan="1";//弹出提醒框
+			    result="该用户的电子币余量不足以支付此笔订单";
+				list.add(panDuan);
+				list.add(result);
+		}else{
+			UserInfo userInfo=managerService.queryUserById(User_id);
+			panDuan="2";//弹出确认框
+		    result="您确认扣除用户"+userInfo.getName()+Fje+"电子币吗？";
+			list.add(panDuan);
+			list.add(result);
+		}
+		}
+	} catch (SQLClientInfoException e) {
+        logger.error("数据库异常",e);
+       
+    }  
+		return list;
+		
+		
+	}
+	/**
+	 *人工补下单并发货
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/deliveryByman")
+	public ModelAndView deliveryByman(HttpServletRequest request,HttpServletResponse response)
+	{
+		ModelAndView view = new ModelAndView("sale/deliveryByman");
+		try{
+		List<WarehouseBean> arealist = managerService.queryAllWarehouse();	
+		request.setAttribute("arealist", arealist);	
+	} catch (SQLClientInfoException e) {
+        logger.error("数据库异常",e);
+       
+    }  
+		return view;
+	}
+	
+	/**
+	 *补发货提交
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws IOException 
+	 * @throws IllegalStateException 
+	 */
+	@RequestMapping(value = "/deliveryBymanSubmit")
+	public ModelAndView deliveryBymanSubmit(Orders condition,@RequestParam("pictureFile")  MultipartFile pictureFile,HttpServletRequest request,HttpServletResponse response) throws IllegalStateException, IOException
+	{
+		ModelAndView view = new ModelAndView("sale/deliveryByman");
+		String result = "";
+		boolean ifsucesss=false;
+		try {	  
+			if("".equals(managerService.queryUserById(condition.getUser_id()))||null==(managerService.queryUserById(condition.getUser_id()))){
+				result="此用户没有注册过";
+			}else{
+			  //保存图片到 
+ 			String name = UUID.randomUUID().toString().replaceAll("-", "");
+ 			//jpg
+ 			String ext = FilenameUtils.getExtension(pictureFile.getOriginalFilename());
+ 			if(!"".equals(ext)&&null!=ext){
+ 			String upload=request.getSession().getServletContext().getRealPath("upload\\" + name + "." + ext);
+ 			pictureFile.transferTo(new File(upload));
+ 			
+ 			condition.getDeliveryBean().setFImg("upload/" + name + "." + ext);
+ 			//--生成缩略图
+ 			PicUtils picu = new PicUtils(upload);
+ 			picu.resizeByHeight(140);
+ 			result=managerService.deliveryBymanSubmit(condition);
+			ifsucesss=true;
+ 			}				
+			}
+			List<WarehouseBean> arealist = managerService.queryAllWarehouse();	
+			request.setAttribute("arealist", arealist);	
+			request.setAttribute("result", result);	
+			request.setAttribute("ifsucesss", ifsucesss);	
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();//custmercost
+		}
+		return view;
+		
+	}
+	/**
+	 *提现列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/queryWithdrawList")
+	public ModelAndView queryWithdrawList(HttpServletRequest request,HttpServletResponse response)
+	{
+		
+		ModelAndView view = null ;
+		try{
+			 String FId=request.getParameter("FId");
+			 String FStatus=request.getParameter("FStatus"); 
+			 String query="";
+			if(!"".equals(FId)&&null!=FId){
+			query="FId="+FId;
+			 view = new ModelAndView("finance/withdrawDetail");
+			}else{
+				query="1=1";
+				view = new ModelAndView("finance/withdrawlist");
+			}
+		 List<WithdrawBean>  WithdrawList =managerService.queryWithdrawList(query);
+		 request.setAttribute("WithdrawList", WithdrawList);	
+		request.setAttribute("FStatus", FStatus);	
+	} catch (SQLClientInfoException e) {
+        logger.error("数据库异常",e);
+       
+    }  
+		return view;
+	}
+	
+	/**
+	 *更新提现单状态
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/updateWithdrawStatus")
+	public ModelAndView updateWithdrawStatus(WithdrawBean condition,HttpServletRequest request,HttpServletResponse response)
+	{
+		boolean ifsucesss = false;
+		String result="";
+		ModelAndView view =  new ModelAndView("finance/withdrawlist");
+		 String query="1=1";
+		try {
+			Rebate rebate=managerService.queryBalance(condition.getFUser_Id());
+			 BigDecimal b1 = new BigDecimal(rebate.getFbalance());
+			 BigDecimal b2 = new BigDecimal(condition.getFJe());
+			if (b1.compareTo(b2)<0) {
+				ifsucesss=false;
+				result="你账户中的余额为"+b1+",不足以支付此次提现";
+				
+			}else{
+				ifsucesss=managerService.updateWithdrawStatus(condition);
+				result="成功";
+			}		
+			 List<WithdrawBean>  WithdrawList =managerService.queryWithdrawList(query);
+			 request.setAttribute("WithdrawList", WithdrawList);	
+		} catch (SQLClientInfoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		request.setAttribute("ifsucesss", ifsucesss);
+		request.setAttribute("result", result);
+		return view;
+	}
+	/**
+	 *驳回提现审核
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/ajaxUpdateRefuseReason")
+	@ResponseBody
+	public String ajaxUpdateRefuseReason(HttpServletRequest request,HttpServletResponse response)
+	{
+		ModelAndView view =  new ModelAndView("finance/withdrawlist");
+		 String query="1=1";
+		try{
+			boolean ifsucesss = false;
+			String result="";
+		    String RefuseReson=request.getParameter("RefuseReson");
+		    String FId=request.getParameter("FId");
+		    WithdrawBean condition=new WithdrawBean();
+		    condition.setFId(FId);
+		    condition.setFStatus("3");
+		    condition.setFRefuseReason(RefuseReson);
+			ifsucesss=managerService.ajaxUpdateRefuseReason(condition);
+			result="驳回成功";
+			/*response.getWriter().print(arg0);*/
+			 /*List<WithdrawBean>  WithdrawList =managerService.queryWithdrawList(query);
+			 request.setAttribute("WithdrawList", WithdrawList);	
+			 request.setAttribute("ifsucesss", ifsucesss);
+				request.setAttribute("result", result);*/
+	} catch (SQLClientInfoException e) {
+        logger.error("数据库异常",e);
+       
+    }  
+		return "[\"0\"]";
+	}
 	
 }

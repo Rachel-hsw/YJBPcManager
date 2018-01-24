@@ -17,7 +17,7 @@
 <body>
 <center>
 <p>&nbsp;</p>
-<p class="STYLE2">青稞麦绿素全国统一代理方案</p>
+<p class="STYLE2">沂健宝全国统一代理方案</p>
 <table width="636" height="558" border="1" bordercolor="#FFFFFF">
 
    <c:forEach items="${infoList}" var="info"> 

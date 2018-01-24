@@ -82,6 +82,7 @@ function dawo(){
 			</thead>
 			<tbody>
 				<c:forEach items="${infoList}" var="info" varStatus="status">
+				<c:if test="${(managerUser.userid=='1')||(managerUser.userid!='1' &&info.ID!='7')}">
 					<tr>
 						<td>${status.index + 1}</td>
 						<td>${info.roleName}</td>
@@ -94,6 +95,7 @@ function dawo(){
 							href='<st:url value="/Manager/queryRoleInfo/${info.ID}/${page}.do"></st:url>'
 							class="tablelink">修改</a></td>
 					</tr>
+					</c:if>
 				</c:forEach>
 			</tbody>
 		</table>

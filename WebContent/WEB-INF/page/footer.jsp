@@ -12,7 +12,7 @@
 
 <body>
 	<div class="footer">
-		<span>后台管理系统</span> <i>版权所有 2015</i>
+		<span>后台管理系统</span> <i>版权所有 2017</i>
 	</div>
 </body>
 </html>

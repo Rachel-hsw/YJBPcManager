@@ -15,10 +15,9 @@
 	<typeAlias alias="configInfo" type="com.res.pc.code.manager.bean.configInfo" />
 	<typeAlias alias="OperationLog" type="com.res.pc.code.manager.bean.OperationLog" />
 	<typeAlias alias="PriceBean" type="com.res.pc.code.manager.bean.PriceBean" />
-	<typeAlias alias="RewardBean" type="com.res.pc.code.manager.bean.RewardBean" />
 	<typeAlias alias="PurchaseBean" type="com.res.pc.code.manager.bean.PurchaseBean" />
 	<typeAlias alias="WarehouseBean" type="com.res.pc.code.manager.bean.WarehouseBean" />
-	
+	    <typeAlias alias=" " type="com.res.pc.code.manager.bean.WarehouseEntity"/>
 	<typeAlias alias="DriverBean" type="com.res.pc.code.manager.bean.DriverBean" />
 	<typeAlias alias="SupplierBean" type="com.res.pc.code.manager.bean.SupplierBean" />
 	<typeAlias alias="Product" type="com.res.pc.code.manager.bean.Product" />
@@ -32,6 +31,16 @@
         <typeAlias alias="QueryProdVo" type="com.res.pc.code.manager.bean.QueryProdVo" />
          <typeAlias alias="Message" type="com.res.pc.code.manager.bean.Message" />
          <typeAlias alias="PayMainBean" type="com.res.pc.code.manager.bean.PayMainBean" />
+         <typeAlias alias="PDBean" type="com.res.pc.code.manager.bean.PDBean" />
+         <typeAlias alias="PDItemBean" type="com.res.pc.code.manager.bean.PDItemBean" />
+             <typeAlias alias="EvaluateBean" type="com.res.pc.code.manager.bean.EvaluateBean"/>
+             <typeAlias alias="PackageBean" type="com.res.pc.code.manager.bean.PackageBean"/>
+             <typeAlias alias="PackageItem" type="com.res.pc.code.manager.bean.PackageItem"/>
+             <typeAlias alias="ExpenseBean" type="com.res.pc.code.manager.bean.ExpenseBean"/>
+             <typeAlias alias="SpdBean" type="com.res.pc.code.manager.bean.SpdBean"/>
+             <typeAlias alias="Rebate" type="com.res.pc.code.customer.bean.Rebate"/>
+             <typeAlias alias="Billnumber" type="com.res.pc.code.manager.bean.Billnumber"/>
+             <typeAlias alias="WithdrawBean" type="com.res.pc.code.manager.bean.WithdrawBean"/>
 	<!-- 登录 -->
 	<select id="login" parameterClass="userInfo" resultClass="userInfo">
 		SELECT
@@ -134,6 +143,46 @@
 		0
 		)
 	</insert>
+	<!-- //更新盘点明细表-->
+	<insert id="updatePDItem" parameterClass="PDItemBean">
+		INSERT INTO
+		T_QK_PDItem
+		(
+		FId,FPDDH,FP_Id,FP_Q,FP_S,FP_Lost,price,F_Money,FRemark
+		)
+		VALUES
+		(
+		(ISNULL( ((select MAX(FId) from T_QK_PDItem) +1) ,1)),
+		#FPDDH#,
+		#FP_Id#,
+		#FP_Q#,
+		#FP_S#,
+		#FP_Lost#,
+		#price#,
+		#F_Money#,
+		#FRemark#
+		)
+	</insert>
+	<!-- //更新盘点主表 -->
+	<insert id="updatePD" parameterClass="PDBean">
+		INSERT INTO
+		T_QK_PD
+		(
+		FId,FPDDH,FW_Id,FSl,F_Money,FZdy,FPdy,FShy,FS_Date
+		)
+		VALUES
+		(
+	    (ISNULL( ((select MAX(FId) from T_QK_PD) +1) ,1)),
+		#FPDDH#,
+		#FW_Id#,
+		1,
+		2,
+		#FZdy#,
+		#FPdy#,
+		#FShy#,
+		#FS_Date#
+		)
+	</insert>
 
 	<!-- 修改菜单信息 -->
 	<update id="updateINInfo" parameterClass="initialNavigationsInfo">
@@ -233,7 +282,7 @@
 	</select>
 
 
-	<!-- 角色列表 -->
+	<!-- 角色列表 更改12.9 -->
 	<select id="queryRoleList" parameterClass="pageInfo"
 		resultClass="roleInfo">
 		<![CDATA[	
@@ -332,10 +381,10 @@
 		select * from qk_Role where users like '%$userId$%'
 	</select>
 
-	<!-- 根据用户查角色 -->
+	<!-- 根据用户查角色 ,更改12.9-->
 	<select id="queryAllIN" resultClass="initialNavigationsInfo">
 		select * from
-		qk_InitialNavigations
+		qk_InitialNavigations where IsEnabled='0'
 	</select>
 
 
@@ -389,7 +438,7 @@
 	</select>
 
 	<!-- 修改返利信息 -->
-	<update id="updateReward" parameterClass="RewardBean">
+	<update id="updateRebateByTypeAndLv" parameterClass="SpdBean">
 		update T_Qk_Spd
 		set
 		Rate
@@ -402,7 +451,7 @@
 
 
 	<!-- 查看返利信息 -->
-	<select id="queryAllReward" resultClass="RewardBean">
+	<select id="queryRebateByType" resultClass="SpdBean">
 	<![CDATA[	
 		select * from T_Qk_Spd 
 	]]>
@@ -452,9 +501,9 @@
 	]]>
 	</select>
 	<!-- 查看用户列表信息 -->
-	<select id="queryAllUserB" resultClass="userInfo">
+	<select id="queryAllUserB" resultClass="userInfo" parameterClass="java.lang.String">
 	<![CDATA[	
-		select * from qk_user where userlb='2'
+		select * from qk_user where userlb  in ($userlb$)
 	]]>
 	</select>
 	<!-- 查看用户列表信息 -->
@@ -487,7 +536,7 @@
 		INSERT INTO
 		T_Qk_Purchasing_Item
 		(
-		FBillID,FP_Id,FP_Price,FP_Num,FP_Zl,FP_Money,FRemark,FEntryID
+		FBillID,FP_Id,FP_Price,FP_Num,FP_Zl,FP_Money,FRemark,FEntryID,FS_Date
 		)
 		VALUES
 		(
@@ -498,7 +547,8 @@
 		#FP_Zl#,
 		#FP_Money#,
 		#FRemark#,
-		(ISNULL( ((select MAX(FEntryID) from T_Qk_Purchasing_Item) +1) ,1))
+		(ISNULL( ((select MAX(FEntryID) from T_Qk_Purchasing_Item) +1) ,1)),
+		#FS_Date#
 		)
 	</insert>
 
@@ -507,7 +557,7 @@
 		INSERT INTO
 		T_Qk_Purchasing
 		(
-		FBillID,FS_Date,FOrder_Id,FSupplier_Id,FW_Id,FZdy,FSource_Id,FJsr,FS_J_Id,FSl,FZl,FJe,Fstatus
+		FBillID,FS_Date,FOrder_Id,FSupplier_Id,FW_Id,FZdy,FSource_Id,FJsr,FS_J_Id,FSl,FZl,FJe,Fstatus,FYf
 		)
 		VALUES
 		(
@@ -523,7 +573,8 @@
 		#FSl#,
 		#FZl#,
 		#FJe#,
-		1
+		1,
+		#FYf#
 
 		)
 	</insert>
@@ -626,34 +677,34 @@
 	<!-- 修改库存信息 -->
 	<update id="updateStock" parameterClass="purItemBean">
 		update T_Qk_Stock
-		set FNum_J=FNum_J+#FP_Num#
+		set FNum_J=FNum_J+#FP_Num#,
+		FNum_E=FNum_E+#FP_Num#
 		where FW_Id=#FW_Id# and FP_Id=#FP_Id#
 	</update>
 
-	<select id="queryAllOrdersList" resultClass="Orders">
-	<![CDATA[	
-		select FBillID,User_id,FOrder_Id,FS_Date,FSname,Ftel,FSl,FZl,Fje,FRemark,FAddress from T_Qk_Orders where Fstatus='2'
-	]]>
-	</select>
+
+	<!--  	// 查询指定待发货订单-->
 	<select id="queryAllOrdersListss" resultClass="Orders"
-		parameterClass="java.lang.Integer">
+		parameterClass="java.lang.String">
 	<![CDATA[	
 		select FBillID,User_id,FOrder_Id,FS_Date,FSname,Ftel,FSl,FZl,Fje,FRemark,FAddress from T_Qk_Orders where Fstatus='2' and FBillID=#FBillID#
 	]]>
 	</select>
-	<select id="queryAllOrdersLists" resultClass="Orders"
-		parameterClass="java.lang.String">
-
-		select
-		FBillID,User_id,FOrder_Id,FS_Date,FSname,Ftel,FSl,FZl,Fje,FRemark,FAddress
-		from T_Qk_Orders where Fstatus='2' and $query$
-
+	
+	<!--重复 <select id="queryAllOrdersLists" resultClass="Orders" parameterClass="java.lang.String">
+		select FBillID,User_id,FOrder_Id,FS_Date,FSname,Ftel,FSl,FZl,Fje,FRemark,FAddress,Fstatus,qk_user.username
+		from T_Qk_Orders,qk_user where   $query$ and  User_id=qk_user.userid
+	</select> -->
+<select id="queryAllOrdersList" resultClass="Orders" parameterClass="java.lang.String">
+	<![CDATA[	
+		select FBillID,User_id,FOrder_Id,FS_Date,FSname,Ftel,FSl,FZl,Fje,FRemark,FAddress,T_Qk_Orders.Fstatus,mark,qk_user.username
+		 from T_Qk_Orders,qk_user where  User_id=qk_user.userid and  $query$    order by FOrder_Id desc
+	]]>
 	</select>
-
 
 	<!-- 查看待发货明细列表信息 -->
 	<select id="queryAllOrderDetail" resultClass="view_orderdetail"
-		parameterClass="java.lang.Integer">
+		parameterClass="java.lang.String">
 	<![CDATA[	
 		 select * from view_orderdetail  where  FBillID=#FBillID#
 	]]>
@@ -673,7 +724,7 @@
 		INSERT INTO
 		T_Qk_Deliver_Goods
 		(
-		FBillID,FW_ID,	FExpress,FCourier_Number,FConsignor,FDelivery_Time,FId
+		FBillID,FW_ID,	FExpress,FCourier_Number,FConsignor,FDelivery_Time,FId,FImg
 		)
 		VALUES
 		(
@@ -683,12 +734,13 @@
 		#FCourier_Number#,
 		#FConsignor#,
 		#FDelivery_Time#,
-		#FId#
+		#FId#,
+		#FImg#
 		)
 	</insert>
 	
 		<!-- 修改订单状态 -->
-	<update id="updateOrders_Status" parameterClass="java.lang.Integer">
+	<update id="updateOrders_Status" parameterClass="java.lang.String">
 		 update T_Qk_Orders set Fstatus='3' where FBillID=#FBillID#
 	</update>
 		<!-- 修改订单状态 -->
@@ -707,7 +759,23 @@
 	<select id="queryPurchasing" resultClass="PurchasingBean"
 		parameterClass="java.lang.String">
 	<![CDATA[	
-		select  a.FBillID,	a.GUID,	a.FOrder_Id,	a.FSource_Id,	a.FSupplier_Id,a.FW_Id,	a.FS_J_Id,a.FS_Date,	a.FYf,	a.FSl	,a.FZl,	a.FJe,	a.FZdy,	b.username,	a.Fstatus	,a.FRemark from T_Qk_Purchasing a,qk_user b where a.FJsr=b.userid and FSupplier_Id=#FId# and Fstatus in(1,4)
+		select  a.FBillID,	a.GUID,	a.FOrder_Id,	a.FSource_Id,	a.FSupplier_Id,a.FW_Id,	a.FS_J_Id,a.FS_Date,	a.FYf,	a.FSl	,a.FZl,	a.FJe,	a.FZdy,	b.username,	a.Fstatus	,a.FRemark from T_Qk_Purchasing a,qk_user b where a.FJsr=b.userid and a.FSupplier_Id  in ($FId$ ) and a.Fstatus in(1,4)
+	]]>
+	</select>
+	<!-- // 获取指定仓库下的商品列表 -->
+	<select id="queryInventory" resultClass="Product"
+		parameterClass="java.lang.String">
+	<![CDATA[	
+		  select  a.FNum_E as FNum_E,b.id,b.name,b.category,b.F_Zl,b.imgurl,b.F_Unit,b.description,b.FStatus,b.FPym,b.F_Num,
+		  (select FP_Price  from T_Qk_Purchasing_Item where FS_Date=(select MAX(FS_Date) from T_Qk_Purchasing_Item) and FP_Id=b.id) as price from 
+  qk_products b,T_Qk_Stock a where id in (select FP_Id from T_Qk_Stock where FW_Id=#FW_Id#) and a.FW_Id=#FW_Id# and FYf=(Select CONVERT(varchar(6), GETDATE(), 112)) and b.id=a.FP_Id and a.FNum_E!=0
+	]]>
+	</select>
+	<!-- //获取目前数据库中的最大派单号 -->
+	<select id="queryPDBean" resultClass="PDBean"
+		parameterClass="java.lang.String">
+	<![CDATA[	
+		select Isnull(MAX(FPDDH),0) as FPDDH from T_QK_PD  where FPDDH like '$FPDDH$%'
 	]]>
 	</select>
 						<!-- 查询进货单位列表-->
@@ -857,7 +925,11 @@
 			F_Zl,
 			imgurl,
 			F_Unit,
-			description
+			description,
+			divName,
+			divID
+			
+			
 		)
 		VALUES
 		(   #name#,
@@ -867,7 +939,9 @@
 			#F_Zl#,
 			#imgurl#,
 			#F_Unit#,
-			#description#
+			#description#,
+			#divName#,
+			#divID#
 		)
 	</insert>
 		<!-- 修改产品信息 -->
@@ -881,7 +955,9 @@
 			F_Zl=#F_Zl#,
 			imgurl=#imgurl#,
 			F_Unit=#F_Unit#,
-			description=#description#
+			description=#description#,
+			divName=#divName#,
+			divID=#divID#
 			where
 		     id = #id#
 	</update>
@@ -899,11 +975,12 @@
 		INSERT INTO
 		T_Qk_FK
 		(
-		FId,FSupplier_Id,FS_Date,FIsDefault,FPayment_id	,FFk_Zje,FSxf,FFk_Je,FJe_Q,	FJe_H,FRemark,FPay_Id,FPay_Name,FZdy
+		FId,CGID,FSupplier_Id,FS_Date,FIsDefault,FPayment_id	,FFk_Zje,FSxf,FFk_Je,FJe_Q,	FJe_H,FRemark,FPay_Id,FPay_Name,FZdy
 		)
 		VALUES
 		(
 		(ISNULL( ((select MAX(FId) from T_Qk_FK) +1) ,1)),
+		#CGID#,
 		#FSupplier_Id#,
 		#FS_Date#,
 		#FIsDefault#,
@@ -918,11 +995,289 @@
 		#FPay_Name#,
 		#FZdy#
 		
-	
+
 		)
 	</insert> 
+  <!-- 根据条件查询评价 -->
+    <select id="queryEvaluateByCond" parameterClass="pageInfo" resultClass="EvaluateBean">
+        <![CDATA[
+        SELECT * FROM (SELECT *,ROW_NUMBER() OVER (ORDER BY $order$) AS RowNumber FROM T_Qk_Evaluate WHERE 1=1
+        ]]>
+        <isNotEmpty property="query" prepend="AND">
+            <!-- FDelivery_Time like '%$query$%' or FDateTime like '%$query$%' or FRemark like '%$query$%' or  -->Fuser_id like '%$query$%' <!-- or Fprod_id like '%$query$%' or FBillID like '%$query$%' or evaluate1 LIKE '%$query$%' OR evaluate2 LIKE '%$query$%' OR evaluate3 LIKE '%$query$%' OR evaluate4 LIKE '%$query$%' -->
+        </isNotEmpty>
+        <![CDATA[
+        )t WHERE RowNumber > $start$ AND RowNumber <= $end$
+        ]]>
+    </select>
+    <!-- 根据条件查询评价总数 -->
+    <select id="queryCountInEvaluateByCond" parameterClass="pageInfo" resultClass="java.lang.Integer">
+        <![CDATA[
+        SELECT COUNT(*) FROM T_Qk_Evaluate WHERE 1=1
+        ]]>
+        <isNotEmpty property="query" prepend="AND">
+           <!--  FDelivery_Time like '%$query$%' or FDateTime like '%$query$%' or FRemark like '%$query$%' or --> Fuser_id like '%$query$%' <!-- or Fprod_id like '%$query$%' or FBillID like '%$query$%' or evaluate1 LIKE '%$query$%' OR evaluate2 LIKE '%$query$%' OR evaluate3 LIKE '%$query$%' OR evaluate4 LIKE '%$query$%' -->
+        </isNotEmpty>
+    </select>
 
  	<procedure id="usp_qk_message" parameterClass="Message" >
    {call  usp_Order_TB_Report_sl(#FTel#,#FDatetime#, #FMsg#, #FType#)}
   </procedure> 
+  
+  	<!-- 查询套餐列表 -->
+	<select id="queryPackageList" resultClass="PackageBean">
+		select * from T_Qk_Package  
+	</select>
+  	<!-- 根据套餐id查询套餐明细 -->
+	<select id="queryPackageDetail" parameterClass="java.lang.String" resultClass="PackageItem">
+		select * from T_Qk_PackageItem  where P_Package_id=#P_Package_id#
+	</select>
+ 	<!-- 查询套餐列表 -->
+	<select id="queryProductList" resultClass="Product">
+		select * from qk_products 
+	</select>
+	<!-- 删除 -->
+	<delete id="delItemById" parameterClass="java.lang.String">
+		delete from T_Qk_PackageItem
+		where
+		P_Package_id = #P_Package_id#
+	</delete>
+		<!-- 删除 -->
+	<delete id="delPackageById" parameterClass="java.lang.String">
+		delete from T_Qk_Package
+		where
+		P_Package_id=#P_Package_id#
+	</delete>
+	<!-- 插入-->
+	<insert id="updatePackageItem" parameterClass="PackageItem">
+		INSERT INTO
+		T_Qk_PackageItem
+		(
+		P_Package_id,P_Id,P_Num,P_Money
+		)
+		VALUES
+		(
+		#P_Package_id#,
+		#P_Id#,
+		#P_Num#,
+		#P_Money#
+		
+		)
+	</insert>
+	<insert id="updatePackage" parameterClass="PackageBean">
+		INSERT INTO
+		T_Qk_Package
+		(
+		P_Package_id,	P_Package,	P_ZNum,	P_ZMoney,	P_Remark
+		)
+		VALUES
+		(
+		#P_Package_id#,
+		#P_Package#,
+		#P_ZNum#,
+		#P_ZMoney#,
+		#P_Remark#
+	
+		)
+	</insert>
+	
+	<insert id="updateExpenseOrEarn" parameterClass="ExpenseBean">
+		INSERT INTO
+		T_Qk_FyZc
+		(
+		 FType,FJe,FZdy,FCzy,FRemark,FDefault
+		)
+		VALUES
+		(
+		#FType#,
+		#FJe#,
+		#FZdy#,
+		#FCzy#,
+		#FRemark#,
+		#FDefault#
+	
+		)
+	</insert>
+	 	<!-- 查询套餐列表 -->
+	<select id="queryMaxPackage_id" resultClass="java.lang.String">
+		select isnull((max(P_Package_id)+1),1) from T_Qk_Package
+	</select>
+	 	<!-- 根据套餐id查询产品列表 -->
+	<select id="queryProductbyId" parameterClass="java.lang.String" resultClass="PackageItem">
+		
+select id,name,price,isnull(P_Package_id,'') as P_Package_Id,isnull(P_Num,'0') as P_Num,isnull(P_Money,'0') as 
+P_Money from qk_products b left join T_Qk_PackageItem a  on a.P_Id=b.id and a.P_Package_id=#P_Package_id#
+	</select>
+	  	<!-- 查询套餐列表 -->
+	<select id="queryPackagebyId" resultClass="PackageBean">
+		select * from T_Qk_Package  where P_Package_id=#P_Package_id#
+	</select>
+	<select id="queryPurchaseList" resultClass="PurchasingBean" parameterClass="java.lang.String">
+		select FBillID,	GUID,	FOrder_Id,	FSource_Id, b.FName as	FSupplier_Id,c.FName as FW_Id,	FS_J_Id,FS_Date,	
+FYf,	FSl	,FZl,	FJe,	FZdy,	d.username as FJsr,	a.Fstatus	,a.FRemark from T_Qk_Purchasing  a,T_Qk_Supplier b,
+T_Qk_Company_Warehouse c, qk_user d where a.FSupplier_Id=b.FId and a.FW_Id=c.FId and a.FJsr=d.userid and $query$
+	</select>
+	<select id="queryPurchaseListByID" resultClass="PurchasingBean"  parameterClass="java.lang.String">
+		select FBillID,	GUID,	FOrder_Id,	FSource_Id, b.FName as	FSupplier_Id,c.FName as FW_Id,	FS_J_Id,FS_Date,	
+FYf,	FSl	,FZl,	FJe,	FZdy,	d.username as FJsr,	a.Fstatus	,a.FRemark from T_Qk_Purchasing  a,T_Qk_Supplier b,
+T_Qk_Company_Warehouse c, qk_user d where a.FSupplier_Id=b.FId and a.FW_Id=c.FId and a.FJsr=d.userid and FBillID  in ($FBillID$)
+	</select>
+	
+	<select id="purchaseItemDetail" resultClass="PurItemBean"  parameterClass="java.lang.String">
+		select FBillID,FEntryID,b.name as FP_Id,b.category as category,b.F_Unit as F_Unit,FP_Price,FP_Zl,FRemark,FP_Price_Id,FS_Date,FP_Num,FP_Money  from T_Qk_Purchasing_Item a,
+qk_products b where a.FP_Id=b.id and FBillID=#FBillID#
+	</select>
+	<select id="queryPayList" resultClass="PayMainBean"  parameterClass="java.lang.String">
+		select a.FId as FId ,CGID,b.FName as FSupplier_Id,FS_Date,	FIsDefault,	FPayment_id	,FFk_Zje,	FSxf	,FFk_Je	,FJe_Q,	FJe_H,	
+a.FRemark	,FPay_Id,	FPay_Name,	FZdy from T_Qk_FK a,T_Qk_Company_Warehouse b where a.FSupplier_Id=b.FId and $query$
+	</select>
+	<select id="queryPayListByID" resultClass="PayMainBean"  parameterClass="java.lang.String">
+		select a.FId as FId ,CGID,b.FName as FSupplier_Id,FS_Date,	FIsDefault,	FPayment_id	,FFk_Zje,	FSxf	,FFk_Je	,FJe_Q,	FJe_H,	
+a.FRemark	,FPay_Id,	FPay_Name,	FZdy,FPay_Id from T_Qk_FK a,T_Qk_Company_Warehouse b where a.FSupplier_Id=b.FId and a.FId=#FId#
+	</select>
+	<select id="findBillNumberByFMax" resultClass="Billnumber"  parameterClass="java.lang.String">
+		select FMax from T_QK_Billnumber where FClass=#FClass#
+	</select>
+	<!-- 删除产品 -->
+	    <update id="updateBillnumberByFClass" parameterClass="java.lang.String">
+	    	update T_QK_Billnumber  set  FMax=(FMax+1)  where FClass=#FClass#
+	</update>
+	
+	<insert id="addOrder" parameterClass="Orders">
+		INSERT INTO
+		T_Qk_Orders
+		(
+		FBillID,FOrder_Id,User_id,FS_Date,FSl,Fje,FZdy,FJsr,Fstatus,FRemark,FAddress,FSname,Ftel,FpayWay,Fdiscount,FW_Id,mark
+		)
+		VALUES
+		(
+		#FBillID#,
+		#FOrder_Id#,
+		#User_id#,
+		#FS_Date#,
+		#FSl#,
+		#Fje#,
+		#FZdy#,
+		#FJsr#,
+		#Fstatus#,
+		#FRemark#,
+		#FAddress#,
+		#FSname#,
+		#Ftel#,
+		#FpayWay#,
+		#Fdiscount#,
+		#FW_Id#,
+	    #mark#
+		)
+	</insert>
+	
+	<insert id="addOrderItem" parameterClass="Orders">
+		INSERT INTO
+		T_Qk_Orderitem
+		(
+		FBillID,FP_Id,FP_Price,FP_Num,FP_Money
+		)
+		VALUES
+		(
+		#FBillID#,
+		#FP_Id#,
+		1,
+		#FSl#,
+		#Fje#
+		)
+	</insert>
+		<select id="findRateByLv" resultClass="SpdBean"  parameterClass="SpdBean">
+		    select Rate from  T_Qk_Spd where Lv=#Lv# and Ftype=#Ftype#
+	</select>
+		<select id="findLevelByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		    select U_Llevel,Fproxy from  qk_user where userid=#userid#
+	</select>
+		<select id="queryUserById" resultClass="UserInfo"  parameterClass="java.lang.String">
+		    select * from  qk_user where userid=#userid#
+	</select>
+		<select id="findRecUser1ByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		  select *  from qk_user where userid=(select recommendId from qk_user where userid=#userid#)
+	</select>
+		<select id="findRecUser2ByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		 select *  from qk_user where userid=(select recommendId from qk_user where userid=(select recommendId from qk_user where userid=#userid#))
+	</select>
+<!-- 		<select id="findProvinceByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		   select Fuserid  as userid,*  from T_Qk_areas where id=( select Pparent_id from T_Qk_areas where id=(select Pparent_id from T_Qk_areas where id=(select area_id from qk_user where userid=#userid#)))
+	</select>
+		<select id="findCityByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		    select Fuserid as userid,*  from T_Qk_areas where id=( select Pparent_id from T_Qk_areas where id=(select area_id from qk_user where userid=#userid#))
+	</select>
+		<select id="findCountyByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		   select Fuserid as userid,*  from T_Qk_areas where id=(select area_id from qk_user where userid=#userid#)
+	</select> -->
+	<select id="findProvinceByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		   select Fuserid  as userid,*  from T_Qk_areas,qk_user where id=( select Pparent_id from T_Qk_areas where id=(select Pparent_id from T_Qk_areas where id=(select area_id from qk_user where userid=#userid#))) and Fuserid=qk_user.userid
+	</select>
+		<select id="findCityByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		    select Fuserid as userid,*  from T_Qk_areas ,qk_user where id=( select Pparent_id from T_Qk_areas where id=(select area_id from qk_user where userid=#userid#)) and Fuserid=qk_user.userid
+	</select>
+		<select id="findCountyByUserid" resultClass="UserInfo"  parameterClass="java.lang.String">
+		   select Fuserid as userid,*  from T_Qk_areas,qk_user where id=(select area_id from qk_user where userid=#userid#) and Fuserid=qk_user.userid
+	</select>
+	<insert id="addAmount" parameterClass="Orders">
+		INSERT INTO
+		T_Qk_Amount
+		(
+		FBillID,Fje,FJe_Y,FJe_S
+		)
+		VALUES
+		(
+		#FBillID#,
+		#Fje#,
+		#Fje#,
+		0
+		)
+	</insert>
+	<insert id="addRebate" parameterClass="Rebate">
+		INSERT INTO
+		T_Qk_User_Rebate
+		(
+		FUser_Id,FOrder_ID,FIntegral,FRebate,FAmount,FGain,Fe_vouche,FRebate_name
+		)
+		VALUES
+		(
+		#FUser_Id#,
+		#FOrder_ID#,
+		#FIntegral#,
+		#FRebate#,
+		#FAmount#,
+		#FGain#,
+		#Fe_vouche#,
+		#FRebate_name#
+		
+		)
+	</insert>
+	 <update id="updateAccounting" parameterClass="Rebate">
+	    	update T_Qk_User_Accounting  set  FIntegral=FIntegral+#FIntegral#,FRebate=FRebate+#FRebate#,FAmount=FAmount+#FAmount#,FGain=FGain+#FGain#,Fe_vouche=Fe_vouche+#Fe_vouche#,Fbalance=Fbalance+#FRebate#  where FUser_Id=#FUser_Id#
+	</update>
+	 <update id="updateLevelbyUserID" parameterClass="UserInfo">
+	    	update qk_user  set  U_Llevel=#U_Llevel# where userid=#userid#
+	</update>
+	<select id="findFSourceId" resultClass="condition"  parameterClass="condition">
+		   select * from T_Qk_Purchasing where FSource_Id=#FSource_Id#
+	</select>
+	<!--   查询指定用户的电子币余量是否足以支付-->
+		<select id="queryIfEnough" resultClass="Rebate"  parameterClass="java.lang.String">
+		   select Fe_vouche  from T_Qk_User_Accounting  where FUser_Id=#FUser_Id#
+	</select>
+	<select id="queryWithdrawList" resultClass="WithdrawBean"  parameterClass="java.lang.String">
+		  select a.*,b.name as name from T_Qk_Withdraw a,qk_user b where   $query$ and a.FUser_Id=b.userid
+	</select>
+	 <update id="updateWithdrawStatus" parameterClass="WithdrawBean">
+	    		update  T_Qk_Withdraw set FStatus=#FStatus#, FUpdatetime=#FUpdatetime# , FRunnumber=#FRunnumber#,FSxf=#FSxf#  where FId=#FId#
+	</update>
+	 <update id="ajaxUpdateRefuseReason" parameterClass="WithdrawBean">
+	    		update  T_Qk_Withdraw set FStatus=#FStatus#, FUpdatetime=#FUpdatetime# , FRefuseReason=#FRefuseReason#  where FId=#FId#
+	</update>
+ <update id="updateAccounting2" parameterClass="Rebate">
+	    	update T_Qk_User_Accounting  set  FIntegral=FIntegral+#FIntegral#,FRebate=FRebate+#FRebate#,FAmount=FAmount+#FAmount#,FGain=FGain+#FGain#,Fe_vouche=Fe_vouche+#Fe_vouche#,Fbalance=Fbalance+#Fbalance#  where FUser_Id=#FUser_Id#
+	</update>
+	<select id="queryBalance" resultClass="Rebate"  parameterClass="java.lang.String">
+		   select   Fbalance  from T_Qk_User_Accounting where  FUser_Id=#FUser_Id#
+	</select>
 </sqlMap>
